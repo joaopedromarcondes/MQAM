@@ -75,3 +75,9 @@ idh_e_pop[order(idh_e_pop$IBGE_RES_POP), decresing=true]
 # plota um gráfico esquisito
 plot(as.factor(idh_e_pop$IDHM))
 
+
+# deve dar pra filtrar os dados assim
+# nao consigo testar agora
+# o resto deve ser a mesma ideia
+pop_em_intervalos[, "Muito Baixo"] <- idh_e_pop[idh_e_pop$IDHM < 5000]
+
