@@ -79,7 +79,7 @@ histograma_idhm <- ggplot(idh_e_pop, aes(x = IDHM)) +
 # Exibir os gráficos
 print(boxplot_idhm)
 print(dispersao_idhm)
-print(histograma_idhm)
+print(histograma_idhm) #porque????????? está demorando muito para ser executado!
 
 
 # Análises adicionais
@@ -92,8 +92,6 @@ cat("Desvio padrão do IDHM:", sd(idh_e_pop$IDHM), "\n")
 table(idh_e_pop$IDHM_Categoria)
 
 #########################################################################################
-
-table(idh_e_pop$IDHM_Categoria)
 
 # Realizar ANOVA
 modelo_anova <- aov(IDHM ~ IDHM_Categoria, data = idh_e_pop)
