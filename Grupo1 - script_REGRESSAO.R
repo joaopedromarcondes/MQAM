@@ -10,7 +10,7 @@ library(pacman)
 
 
 # Carrega os pacotes necessários, instalando-os se não estiverem presentes
-pacman::p_load(dplyr, ggplot2, readxl, DT, fastDummies, lmtest)
+pacman::p_load(dplyr, ggplot2, readxl, DT, fastDummies, lmtest, tidyverse)
 
 
 # Definir funções importantes
@@ -28,6 +28,48 @@ descrever_coluna <- function(x) {
     "Desvio-Padrão" = sd(x)
   )
 }
+
+
+# Função para realizar regressão e gerar gráficos
+regressoes_idhm_com_graficos <- function(data, idhm_col = "IDHM") {
+  # Selecionar variáveis (excluindo o IDHM)
+  variaveis <- data %>%
+    select(-all_of(idhm_col)) %>%
+    colnames()
+
+  # Criar uma lista para armazenar os resultados e os gráficos
+  resultados <- list()
+  graficos <- list()
+
+  # Loop pelas variáveis, ajustando o modelo e criando gráficos
+  for (variavel in variaveis) {
+    # Formula da regressão
+    formula <- as.formula(paste(idhm_col, "~", variavel))
+    modelo <- lm(formula, data = data)
+
+    # Resumo dos coeficientes da regressão
+    print("========================================")
+    print(formula)
+    print(summary(modelo))
+    coeficientes <- summary(modelo)$coefficients
+    resultados[[variavel]] <- coeficientes
+
+    # Criar gráfico com a linha de regressão
+    grafico <- ggplot(data, aes_string(x = variavel, y = idhm_col)) +
+      geom_point() +  # Adiciona os pontos
+      geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Linha de regressão
+      labs(title = paste("Regressão Linear entre", idhm_col, "e", variavel),
+           x = variavel,
+           y = idhm_col) +
+      theme_minimal()
+
+    # Armazenar o gráfico
+    graficos[[variavel]] <- grafico
+  }
+
+  return(list("coeficientes" = resultados, "graficos" = graficos))
+}
+
 
 
 
@@ -87,71 +129,45 @@ length(dados)
 datatable(dados)
 
 
-reg <- lm(IDHM ~ ALT, dados)
-reg
-summary(reg)
-# Plotar os dados
-plot(dados$IDHM, dados$ALT, main="Regressão Linear Simples")
+resultados_graficos <- regressoes_idhm_com_graficos(select(dados, -RURAL_URBAN))
 
-# Adicionar a linha de regressão
-abline(reg, col="blue")
+# IBGE_RES_POP
+print(resultados_graficos$coeficientes$IBGE_RES_POP)
+print(resultados_graficos$graficos$IBGE_RES_POP)
 
+# ALT
+print(resultados_graficos$coeficientes$ALT)
+print(resultados_graficos$graficos$ALT)
 
-reg <- lm(IDHM ~ IBGE_RES_POP, dados)
-reg
-summary(reg)
-# Plotar os dados
-plot(dados$IDHM, dados$IBGE_RES_POP, main="Regressão Linear Simples")
+# AREA
+print(resultados_graficos$coeficientes$AREA)
+print(resultados_graficos$graficos$AREA)
 
-# Adicionar a linha de regressão
-abline(reg, col="blue")
+# TAXES
+print(resultados_graficos$coeficientes$TAXES)
+print(resultados_graficos$graficos$TAXES)
 
+# Motorcycles
+print(resultados_graficos$coeficientes$Motorcycles)
+print(resultados_graficos$graficos$Motorcycles)
 
-
-reg <- lm(IDHM ~ TAXES, dados)
-reg
-summary(reg)
-# Plotar os dados
-plot(dados$IDHM, dados$TAXES, main="Regressão Linear Simples")
-
-# Adicionar a linha de regressão
-abline(reg, col="blue")
-
-
-reg <- lm(IDHM ~ Motorcycles, dados)
-reg
-summary(reg)
-# Plotar os dados
-plot(dados$IDHM, dados$Motorcycles, main="Regressão Linear Simples")
-
-# Adicionar a linha de regressão
-abline(reg, col="blue")
-
-
-reg <- lm(IDHM ~ Motorcycles, dados)
-reg
-summary(reg)
-# Plotar os dados
-plot(dados$IDHM, dados$Motorcycles, main="Regressão Linear Simples")
-
-# Adicionar a linha de regressão
-abline(reg, col="blue")
+# Cars
+print(resultados_graficos$coeficientes$Cars)
+print(resultados_graficos$graficos$Cars)
 
 
 
+
+# Transformar qualitativas em DUMMY
 dados <- dummy_cols(dados, select_columns = "RURAL_URBAN")
-dados
 dados <- select(dados, -RURAL_URBAN)
 
 
-
-
-
 # Ajustar um modelo completo (com todas as variáveis independentes)
-modelo_completo <- lm(IDHM ~ ., data=dados)
+modelo_completo <- lm(IDHM ~ ., data = dados)
 
 # Aplicar o método stepwise
-modelo_stepwise <- step(modelo_completo, direction="both")
+modelo_stepwise <- step(modelo_completo, direction = "both")
 
 # Verificar o resumo do modelo stepwise
 summary(modelo_stepwise)
@@ -161,11 +177,11 @@ formula(modelo_stepwise)
 residuos <- residuals(modelo_stepwise)
 
 # Gráfico de Resíduos vs. Valores Ajustados
-plot(modelo_stepwise$fitted.values, residuos, 
-     xlab = "Valores Ajustados", 
-     ylab = "Resíduos", 
+plot(modelo_stepwise$fitted.values, residuos,
+     xlab = "Valores Ajustados",
+     ylab = "Resíduos",
      main = "Resíduos vs. Valores Ajustados")
-abline(h = 0, col = "red") 
+abline(h = 0, col = "red")
 
 
 # Q-Q Plot
@@ -174,30 +190,14 @@ qqline(residuos, col = "red")  # Linha de referência
 
 
 # Gráfico de Dispersão dos Resíduos
-plot(modelo_stepwise$fitted.values, abs(residuos), 
-     xlab = "Valores Ajustados", 
-     ylab = "Resíduos Absolutos", 
+plot(modelo_stepwise$fitted.values, abs(residuos),
+     xlab = "Valores Ajustados",
+     ylab = "Resíduos Absolutos",
      main = "Dispersão dos Resíduos")
 abline(h = 0, col = "red")  # Linha horizontal em y = 0
 
 # Teste de normalidade dos resíduos
 ks.test(residuos, "pnorm", mean = mean(residuos), sd = sd(residuos))
 
-
-
 # Teste de Breusch-Pagan
 gqtest(modelo_stepwise)
-
-
-
-plot(dados$IDHM, dados$IBGE_RES_POP)
-plot(dados$IDHM, dados$ALT)
-plot(dados$IDHM, dados$AREA)
-plot(dados$IDHM, dados$TAXES)
-plot(dados$IDHM, dados$STATE)
-plot(dados$IDHM, dados$Motorcycles)
-plot(dados$IDHM, dados$Cars)
-
-
-heatmap((cor(dados[, -6])))
-heatmap(abs(cor(dados[, -6])))
