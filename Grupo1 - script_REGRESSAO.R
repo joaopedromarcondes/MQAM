@@ -123,7 +123,6 @@ dados$Cars <- dados$Cars / dados$IBGE_RES_POP
 
 # Visualização dos dados após o tratamento
 datatable(sapply(dados, descrever_coluna))
-boxplot(dados)
 sort(table(dados$STATE))
 length(dados)
 datatable(dados)
