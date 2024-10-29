@@ -8,7 +8,7 @@ pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse
 
 
 #Preparando o Dataset
-tabela <- read_csv("BRAZIL_CITIES.csv", sep=";")
+tabela <- read_csv("BRAZIL_CITIES.csv")
 dados <- tabela[, c("")] # falta colocar as colunas usadas para esse teste...
 summary(tabela)
 head(as.numeric(tabela$AREA), 20)
@@ -73,3 +73,16 @@ multi <- function(x) {
 #######################################################################
 
 #Saida da Regressão Logística
+
+#vendo quantas cidades tem idh maior ou igual a 0,7
+# Carregar pacote necessário
+library(readr)
+
+# Ler a planilha (substitua 'nome_do_arquivo.csv' pelo nome do seu arquivo e 'nome_da_coluna' pela coluna que deseja analisar)
+dados <- read_csv("BRAZIL_CITIES.csv")
+
+# Contar o número de linhas em que a coluna tem valor >= 0.7
+contagem <- sum(dados$IDHM >= 0.7, na.rm = TRUE)
+
+# Exibir o resultado
+print(paste("Número de linhas com valor maior ou igual a 0,7:", contagem))
