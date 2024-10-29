@@ -8,10 +8,11 @@ pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse
 
 
 #Preparando o Dataset
-tabela <- read_csv("MQA2024–grupo01–dataset_regressão logística.csv")
+tabela <- read_csv("BRAZIL_CITIES.csv", sep=";")
 dados <- tabela[, c("")] # falta colocar as colunas usadas para esse teste...
-
-
+summary(tabela)
+head(as.numeric(tabela$AREA), 20)
+head(tabela$AREA, 20)
 # Definir funções importantes
 moda <- function(x) {
   modal <- unique(x)
@@ -27,8 +28,8 @@ descrever_coluna <- function(x) {
     "Desvio-Padrão" = sd(x)
   )
 }
-
-
+descrever_coluna(tabela$IDHM)
+tabela$IDHM
 ###Tratando as variáveis
 
 #Pensamos em tratar algumas variáveis (em relação ao tamanho da população)
@@ -54,7 +55,7 @@ tabela_confusao() <- function(x) {
 
 #Tendencia de Recursos
 grafico_tendencia_recursos <- function(x) {
-  printf("Hello")
+  print("Hello")
 }
 
 #Autocorrelação dos resíduos e das variáveis independentes
