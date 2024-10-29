@@ -8,9 +8,8 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 library(pacman)
 
 
-
 # Carrega os pacotes necessários, instalando-os se não estiverem presentes
-pacman::p_load(dplyr, ggplot2, readxl, DT, fastDummies, lmtest, tidyverse)
+pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse)
 
 
 # Definir funções importantes
@@ -29,31 +28,26 @@ descrever_coluna <- function(x) {
   )
 }
 
-
 # Função para realizar regressão e gerar gráficos
 regressoes_idhm_com_graficos <- function(data, idhm_col = "IDHM") {
   # Selecionar variáveis (excluindo o IDHM)
   variaveis <- data %>%
     select(-all_of(idhm_col)) %>%
     colnames()
-
   # Criar uma lista para armazenar os resultados e os gráficos
   resultados <- list()
   graficos <- list()
-
   # Loop pelas variáveis, ajustando o modelo e criando gráficos
   for (variavel in variaveis) {
     # Formula da regressão
     formula <- as.formula(paste(idhm_col, "~", variavel))
     modelo <- lm(formula, data = data)
-
     # Resumo dos coeficientes da regressão
     print("========================================")
     print(formula)
     print(summary(modelo))
     coeficientes <- summary(modelo)$coefficients
     resultados[[variavel]] <- coeficientes
-
     # Criar gráfico com a linha de regressão
     grafico <- ggplot(data, aes_string(x = variavel, y = idhm_col)) +
       geom_point() +  # Adiciona os pontos
@@ -62,20 +56,78 @@ regressoes_idhm_com_graficos <- function(data, idhm_col = "IDHM") {
            x = variavel,
            y = idhm_col) +
       theme_minimal()
-
     # Armazenar o gráfico
     graficos[[variavel]] <- grafico
   }
-
   return(list("coeficientes" = resultados, "graficos" = graficos))
 }
 
+#Funcao para calcular todos os p-value e r quadrado
+calcular_p_values_r_square <- function(data, idhm_col = "IDHM") {
+  # Lista de variáveis para análise
+  variaveis <- c("IBGE_RES_POP", "AREA", "ALT", "TAXES", "Motorcycles", "Cars")
+  
+  # Lista para armazenar os resultados
+  resultados <- list()
+  
+  # Loop pelas variáveis para calcular p-values
+  for (variavel in variaveis) {
+    # Para variáveis contínuas, usar regressão linear
+     modelo <- lm(as.formula(paste(idhm_col, "~", variavel)), data = data)
+    summary_model <- summary(modelo)
+    p_value <- summary_model$coefficients[2,4]  # p-value para o coeficiente da variável
+    r_squared <- summary_model$r.squared
+  
+    resultados[[variavel]] <- list(p_value = p_value, r_squared = r_squared)
+  }
+  return(resultados)
+}
 
 
+# Função para formatar p-values e r-quadrado
+format_value <- function(p_value, digits = 3) {
+  if (is.na(p_value)) {
+    return("NA")
+  } else if (p_value < 0.001) {
+    return("< 0.001")
+  } else {
+    return(format(round(p_value, digits), nsmall = digits))
+  }
+}
+
+#BOXPLOOOOOOOOOOOOOOOOOOOOOOOOOOOTS
+gerar_boxplots <- function(data, idhm_col = "IDHM") {
+  # Lista de variáveis para criar boxplots
+  variaveis <- c("IBGE_RES_POP")
+  
+  # Lista para armazenar os gráficos
+  boxplots <- list()
+  
+  # Loop pelas variáveis para criar os boxplots
+  for (variavel in variaveis) {
+# Para variáveis contínuas, criar boxplot com grupos
+    # Dividir a variável em quartis
+    data$grupo <- cut(data[[variavel]], breaks = quantile(data[[variavel]], probs = seq(0, 1, 0.25)), 
+                      labels = c("Q1", "Q2", "Q3", "Q4"), include.lowest = TRUE)
+    
+    plot <- ggplot(data, aes_string(x = "grupo", y = idhm_col)) +
+      geom_boxplot() +
+      labs(title = paste("Boxplot de", idhm_col, "por quartis de", variavel),
+           x = paste("Quartis de", variavel),
+           y = idhm_col) +
+      theme_minimal()
+    
+    boxplots[[variavel]] <- plot
+  }
+  
+  return(boxplots)
+}
+
+#######################################################################################################################################################
 
 # Importar banco de dados
-BRAZIL_CITIES_REV2022_CSV <- read_excel("BRAZIL_CITIES_REV2022.CSV.xlsx")
-
+BRAZIL_CITIES_REV2022_CSV <- read_csv("MQA2024–grupo01–dataset_RegressaoLinearMultipla.csv")
+getwd()
 # Selecionar colunas que serão usadas na análise
 dados <- BRAZIL_CITIES_REV2022_CSV[, c("IDHM", "IBGE_RES_POP", "ALT", "AREA", "TAXES", "RURAL_URBAN", "Motorcycles", "Cars")]
 
@@ -116,6 +168,7 @@ dados$Motorcycles <- log(dados$Motorcycles)
 # Carros
 dados$Cars <- log(dados$Cars)
 
+#Normalização
 dados$TAXES <- dados$TAXES / dados$IBGE_RES_POP
 dados$Motorcycles <- dados$Motorcycles / dados$IBGE_RES_POP
 dados$Cars <- dados$Cars / dados$IBGE_RES_POP
@@ -126,7 +179,6 @@ datatable(sapply(dados, descrever_coluna))
 sort(table(dados$STATE))
 length(dados)
 datatable(dados)
-
 
 resultados_graficos <- regressoes_idhm_com_graficos(select(dados, -RURAL_URBAN))
 
@@ -154,8 +206,30 @@ print(resultados_graficos$graficos$Motorcycles)
 print(resultados_graficos$coeficientes$Cars)
 print(resultados_graficos$graficos$Cars)
 
+#imprime os p-valores e r-quadrado
+resultados <- calcular_p_values_r_square(dados)
+
+# Exibir os resultados
+for (variavel in names(resultados)) {
+  cat(paste0(variavel, ":\n"))
+  cat(paste0("  p-value = ", format_value(resultados[[variavel]]$p_value), "\n"))
+  cat(paste0("  R-squared = ", format_value(resultados[[variavel]]$r_squared), "\n\n"))
+}
+#imprime a regressão linear de cada um dos 
 
 
+
+# Gerar os boxplots
+boxplots <- gerar_boxplots(dados)
+
+# Visualizar os boxplots
+for (variavel in names(boxplots)) {
+  print(paste("Boxplot para", variavel))
+  print(boxplots[[variavel]])
+}
+
+
+################################################################################################################################
 
 # Transformar qualitativas em DUMMY
 dados <- dummy_cols(dados, select_columns = "RURAL_URBAN")
