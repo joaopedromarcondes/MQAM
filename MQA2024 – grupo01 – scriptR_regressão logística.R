@@ -161,9 +161,9 @@ cat("Log-Likelihood do modelo nulo:", log_likelihood_null, "\n")
 
 # Gerar previsões com probabilidade
 probabilidades <- predict(modelo_stepwise, type = "response")
-
+plot(sort(probabilidades))
 # Definir o limiar para classificação binária (0.5, por exemplo)
-previsoes <- ifelse(probabilidades > 0.5, 1, 0)
+previsoes <- ifelse(probabilidades > 0.6, 1, 0)
 
 # Criar a matriz de confusão
 matriz_confusao <- table(Predito = previsoes, Real = dados$IDHM)
