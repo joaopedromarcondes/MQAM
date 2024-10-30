@@ -28,7 +28,7 @@ descrever_coluna <- function(x) {
 tabela <- read_csv("BRAZIL_CITIES.csv")
 dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN")]
 dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA")] # removendo rural_urban por ser qualitativa
-dados
+
 # Dados antes de tratar
 #datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
 boxplot(select(dados, -RURAL_URBAN))
@@ -101,7 +101,7 @@ dados <- select(dados, -RURAL_URBAN)
 
 # Transformar IDH em Qualitativa Binária
 dados$IDHM <- as.numeric(dados$IDHM > 0.7)
-dados$IDHM
+
 
 
 ### MODELO REGRESSÃO ###
@@ -139,19 +139,52 @@ null_model <- glm(IDHM ~ 1, data = dados, family = binomial)
 
 # Log-likelihood do modelo nulo
 log_likelihood_null <- logLik(null_model)
+cat("\nLog Likelihood:\n")
+print(log_likelihood_null)
+1-logLik(modelo_stepwise)/logLik(null_model)
+
 
 # Calcular o pseudo R^2 de Cox-Snell
 n <- nrow(dados)  # Número de observações
-pseudo_R2_cox_snell <- 1 - (log_likelihood_null / modelo_log_likelihood)^(2 / n)
-
+pseudo_R2_cox_snell <- 1 - ((log_likelihood_null / modelo_log_likelihood)^(2 / n))
+pseudo_R2_cox_snell
 
 # Calcular o pseudo R^2 de Nagelkerke
-pseudo_R2_nagelkerke <- pseudo_R2_cox_snell / (1 - exp(log_likelihood_null / n))
+pseudo_R2_nagelkerke <- pseudo_R2_cox_snell / (1 - exp((2 / n) * log_likelihood_null))
 
 # Exibir o valor do pseudo R^2 de Nagelkerke
 cat("Pseudo R^2 de Nagelkerke:", pseudo_R2_nagelkerke, "\n")
 cat("Log-Likelihood do modelo ajustado:", modelo_log_likelihood, "\n")
 cat("Log-Likelihood do modelo nulo:", log_likelihood_null, "\n")
+
+
+
+# Gerar previsões com probabilidade
+probabilidades <- predict(modelo_stepwise, type = "response")
+
+# Definir o limiar para classificação binária (0.5, por exemplo)
+previsoes <- ifelse(probabilidades > 0.5, 1, 0)
+
+# Criar a matriz de confusão
+matriz_confusao <- table(Predito = previsoes, Real = dados$IDHM)
+
+# Calcular Acurácia
+acuracia <- sum(diag(matriz_confusao)) / sum(matriz_confusao)
+cat("Acurácia:", acuracia, "\n")
+
+# Calcular Sensibilidade (Recall)
+sensibilidade <- matriz_confusao[2, 2] / sum(matriz_confusao[, 2])
+cat("Sensibilidade:", sensibilidade, "\n")
+
+# Calcular Especificidade
+especificidade <- matriz_confusao[1, 1] / sum(matriz_confusao[, 1])
+cat("Especificidade:", especificidade, "\n")
+matriz_confusao
+
+
+
+
+
 
 
 
