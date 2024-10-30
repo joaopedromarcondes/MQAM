@@ -26,7 +26,7 @@ descrever_coluna <- function(x) {
 
 #Preparando o Dataset
 tabela <- read_csv("BRAZIL_CITIES.csv")
-dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN")] # falta colocar as colunas usadas para esse teste...
+dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN")]
 dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA")] # removendo rural_urban por ser qualitativa
 
 # Dados antes de tratar
@@ -61,42 +61,50 @@ dados[["IBGE_CROP_PRODUCTION_$"]] <- log(dados[["IBGE_CROP_PRODUCTION_$"]])
 # transformação logarítmica em AREA
 dados$AREA <- log(dados$AREA)
 
+datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
 
+# #calculando as estatísticas descritivas das varíaveis
+# media <- sapply(dados, mean, na.rm = TRUE)
+# mediana <- sapply(dados, median, na.rm = TRUE)
+# variancia <- sapply(dados, var, na.rm = TRUE)
+# desvio_padrao <- sapply(dados, sd, na.rm = TRUE)
+# coef_var <- (desvio_padrao / media) * 100
 
-#calculando as estatísticas descritivas das varíaveis
-media <- sapply(dados, mean, na.rm = TRUE)
-mediana <- sapply(dados, median, na.rm = TRUE)
-variancia <- sapply(dados, var, na.rm = TRUE)
-desvio_padrao <- sapply(dados, sd, na.rm = TRUE)
-coef_var <- (desvio_padrao / media) * 100
+# # Exibir os resultados em um data frame
+# estatisticas_descritivas <- data.frame(
+#   Media = media,
+#   Mediana = mediana,
+#   Variancia = variancia,
+#   DesvioPadrao = desvio_padrao,
+#   CoeficienteDeVariacao = coef_var
+# )
 
-# Exibir os resultados em um data frame
-estatisticas_descritivas <- data.frame(
-  Media = media,
-  Mediana = mediana,
-  Variancia = variancia,
-  DesvioPadrao = desvio_padrao,
-  CoeficienteDeVariacao = coef_var
-)
+#print(estatisticas_descritivas)
 
-print(estatisticas_descritivas)
-
+# Variáveis Quantitativas
 boxplot(dados$IDHM)
 boxplot(dados$TAXES)
 boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
 boxplot(dados$AREA)
 
+# Variáveis Qualitativas
+pie(sort(table(dados$RURAL_URBAN)))
+sort(table(dados$RURAL_URBAN))
 
 
 
 # Transformar qualitativas em DUMMY
-dados <- dummy_cols(dados, select_columns = "RURAL_URBAN")
+# Fixa-se Intermediário Adjacente.
+dados <- dummy_cols(dados, select_columns = "RURAL_URBAN", remove_first_dummy = TRUE)
 dados <- select(dados, -RURAL_URBAN)
-dados
+
+
+# Transformar IDH em Qualitativa Binária
+dados$IDHM <- as.numeric(dados$IDHM > 0.7)
 
 
 
-
+### MODELO REGRESSÃO ###
 # Ajustando um modelo inicial com todas as variáveis
 modelo_full <- glm(IDHM ~ ., data = dados, family = binomial)
 
@@ -129,16 +137,16 @@ plot(modelo_stepwise, which = 4, main = "Gráfico de Cook's Distance")
 logit_values <- predict(modelo_stepwise, type = "link")  # Logit estimado
 
 # Gráfico para x1
-ggplot(data, aes(x = x1, y = logit_values)) + 
+ggplot(dados, aes(x = TAXES, y = logit_values)) + 
   geom_point() +
   geom_smooth(method = "loess", se = FALSE) +
-  labs(title = "Verificação da Linearidade do Logit para x1",
+  labs(title = "Verificação da Linearidade do Logit para Taxes",
        x = "x1",
        y = "Logit estimado") +
   theme_minimal()
 
 # Gráfico para x2
-ggplot(data, aes(x = x2, y = logit_values)) + 
+ggplot(dados, aes(x = AREA, y = logit_values)) + 
   geom_point() +
   geom_smooth(method = "loess", se = FALSE) +
   labs(title = "Verificação da Linearidade do Logit para x2",
