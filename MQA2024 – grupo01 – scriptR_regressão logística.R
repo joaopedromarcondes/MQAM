@@ -28,7 +28,7 @@ descrever_coluna <- function(x) {
 tabela <- read_csv("BRAZIL_CITIES.csv")
 dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN")]
 dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA")] # removendo rural_urban por ser qualitativa
-
+dados
 # Dados antes de tratar
 #datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
 boxplot(select(dados, -RURAL_URBAN))
@@ -101,7 +101,7 @@ dados <- select(dados, -RURAL_URBAN)
 
 # Transformar IDH em Qualitativa Binária
 dados$IDHM <- as.numeric(dados$IDHM > 0.7)
-
+dados$IDHM
 
 
 ### MODELO REGRESSÃO ###
@@ -128,6 +128,32 @@ print(vif_results)
 influence_measures <- influence.measures(modelo_stepwise)
 cat("\nMedidas de influência para o modelo final:\n")
 print(influence_measures)
+
+# Calculando Log Likehood para o modelo
+modelo_log_likelihood <- logLik(modelo_stepwise)
+cat("\nLog Likelihood:\n")
+print(modelo_log_likelihood)
+
+# Ajustar o modelo nulo (sem preditores)
+null_model <- glm(IDHM ~ 1, data = dados, family = binomial)
+
+# Log-likelihood do modelo nulo
+log_likelihood_null <- logLik(null_model)
+
+# Calcular o pseudo R^2 de Cox-Snell
+n <- nrow(dados)  # Número de observações
+pseudo_R2_cox_snell <- 1 - (log_likelihood_null / modelo_log_likelihood)^(2 / n)
+
+
+# Calcular o pseudo R^2 de Nagelkerke
+pseudo_R2_nagelkerke <- pseudo_R2_cox_snell / (1 - exp(log_likelihood_null / n))
+
+# Exibir o valor do pseudo R^2 de Nagelkerke
+cat("Pseudo R^2 de Nagelkerke:", pseudo_R2_nagelkerke, "\n")
+cat("Log-Likelihood do modelo ajustado:", modelo_log_likelihood, "\n")
+cat("Log-Likelihood do modelo nulo:", log_likelihood_null, "\n")
+
+
 
 # Gráfico de Cook's Distance para detectar influências
 plot(modelo_stepwise, which = 4, main = "Gráfico de Cook's Distance")
