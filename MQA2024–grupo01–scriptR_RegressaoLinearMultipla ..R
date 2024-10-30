@@ -126,7 +126,7 @@ gerar_boxplots <- function(data, idhm_col = "IDHM") {
 #######################################################################################################################################################
 
 # Importar banco de dados
-BRAZIL_CITIES_REV2022_CSV <- read_csv("MQA2024–grupo01–dataset_RegressaoLinearMultipla.csv")
+BRAZIL_CITIES_REV2022_CSV <- read_csv("BRAZIL_CITIES.csv")
 getwd()
 # Selecionar colunas que serão usadas na análise
 dados <- BRAZIL_CITIES_REV2022_CSV[, c("IDHM", "IBGE_RES_POP", "ALT", "AREA", "TAXES", "RURAL_URBAN", "Motorcycles", "Cars")]

@@ -26,16 +26,72 @@ descrever_coluna <- function(x) {
 
 #Preparando o Dataset
 tabela <- read_csv("BRAZIL_CITIES.csv")
-dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "STATE")] # falta colocar as colunas usadas para esse teste...
-dados
+dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN")] # falta colocar as colunas usadas para esse teste...
+dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA")] # removendo rural_urban por ser qualitativa
 
-#vendo quantas cidades tem idh maior ou igual a 0,7
+# Dados antes de tratar
+#datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
+boxplot(select(dados, -RURAL_URBAN))
+pie(sort(table(dados$RURAL_URBAN)))
 
-# Contar o número de linhas em que a coluna tem valor >= 0.7
-contagem <- sum(dados$IDHM >= 0.7)
+# Tratar dados
+# Remover os valores 0 e os valores menores que 0
+dados_negativos <- dados[, c("IDHM", "IBGE_CROP_PRODUCTION_$", "AREA", "TAXES")] <= 0
+dados <- dados[!rowSums(dados_negativos) > 0, ]
 
-# Exibir o resultado
-print(paste("Número de linhas com valor maior ou igual a 0,7:", contagem))
+# Contar quantas linhas sobraram após a remoção
+tamanho_dataset_apos_remover_negativos <- nrow(dados)
+
+# Exibir o número de linhas restantes
+cat("Número de linhas restantes:", tamanho_dataset_apos_remover_negativos, "\n")
+
+boxplot(dados$IDHM)
+boxplot(dados$TAXES)
+boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
+boxplot(dados$AREA)
+
+# transformação logarítmica em TAXES
+dados$TAXES <- log(dados$TAXES)
+
+# transformação logarítmica em IBGE_CROP_PRODUCTION
+dados[["IBGE_CROP_PRODUCTION_$"]] <- log(dados[["IBGE_CROP_PRODUCTION_$"]])
+
+# transformação logarítmica em AREA
+dados$AREA <- log(dados$AREA)
+
+# Tratar dados novamente
+# Remover os valores 0 e os valores menores que 0
+dados_negativos <- dados[, c("IDHM", "IBGE_CROP_PRODUCTION_$", "AREA", "TAXES")] <= 0
+dados <- dados[!rowSums(dados_negativos) > 0, ]
+
+# Contar quantas linhas sobraram após a remoção
+tamanho_dataset_apos_remover_negativos <- nrow(dados)
+
+# Exibir o número de linhas restantes
+cat("Número de linhas restantes:", tamanho_dataset_apos_remover_negativos, "\n")
+
+#calculando as estatísticas descritivas das varíaveis
+media <- sapply(dados, mean, na.rm = TRUE)
+mediana <- sapply(dados, median, na.rm = TRUE)
+variancia <- sapply(dados, var, na.rm = TRUE)
+desvio_padrao <- sapply(dados, sd, na.rm = TRUE)
+coef_var <- (desvio_padrao / media) * 100 
+
+# Exibir os resultados em um data frame
+estatisticas_descritivas <- data.frame(
+  Media = media,
+  Mediana = mediana,
+  Variancia = variancia,
+  DesvioPadrao = desvio_padrao,
+  CoeficienteDeVariacao = coef_var
+)
+
+print(estatisticas_descritivas)
+
+boxplot(dados$IDHM)
+boxplot(dados$TAXES)
+boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
+boxplot(dados$AREA)
 
 descrever_coluna(tabela$IDHM)
 tabela$IDHM
