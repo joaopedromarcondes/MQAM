@@ -4,7 +4,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 }
 
 library(pacman)
-pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse)
+pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse, car)
 
 # Definir funções importantes
 moda <- function(x) {
@@ -36,9 +36,11 @@ pie(sort(table(dados$RURAL_URBAN)))
 
 # Tratar dados
 # Remover os valores 0 e os valores menores que 0
-dados_negativos <- dados[, c("IDHM", "IBGE_CROP_PRODUCTION_$", "AREA", "TAXES")] <= 0
-dados <- dados[!rowSums(dados_negativos) > 0, ]
 
+dados_negativos_ou_na <- (dados_numericos <= 0) | (is.na(dados_numericos))
+length(which(dados_negativos_ou_na))
+dados <- dados[!apply(dados_negativos_ou_na, 1, any), ]
+summary(dados)
 # Contar quantas linhas sobraram após a remoção
 tamanho_dataset_apos_remover_negativos <- nrow(dados)
 
@@ -59,23 +61,14 @@ dados[["IBGE_CROP_PRODUCTION_$"]] <- log(dados[["IBGE_CROP_PRODUCTION_$"]])
 # transformação logarítmica em AREA
 dados$AREA <- log(dados$AREA)
 
-# Tratar dados novamente
-# Remover os valores 0 e os valores menores que 0
-dados_negativos <- dados[, c("IDHM", "IBGE_CROP_PRODUCTION_$", "AREA", "TAXES")] <= 0
-dados <- dados[!rowSums(dados_negativos) > 0, ]
 
-# Contar quantas linhas sobraram após a remoção
-tamanho_dataset_apos_remover_negativos <- nrow(dados)
-
-# Exibir o número de linhas restantes
-cat("Número de linhas restantes:", tamanho_dataset_apos_remover_negativos, "\n")
 
 #calculando as estatísticas descritivas das varíaveis
 media <- sapply(dados, mean, na.rm = TRUE)
 mediana <- sapply(dados, median, na.rm = TRUE)
 variancia <- sapply(dados, var, na.rm = TRUE)
 desvio_padrao <- sapply(dados, sd, na.rm = TRUE)
-coef_var <- (desvio_padrao / media) * 100 
+coef_var <- (desvio_padrao / media) * 100
 
 # Exibir os resultados em um data frame
 estatisticas_descritivas <- data.frame(
@@ -93,8 +86,76 @@ boxplot(dados$TAXES)
 boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
 boxplot(dados$AREA)
 
-descrever_coluna(tabela$IDHM)
-tabela$IDHM
+
+
+
+# Transformar qualitativas em DUMMY
+dados <- dummy_cols(dados, select_columns = "RURAL_URBAN")
+dados <- select(dados, -RURAL_URBAN)
+dados
+
+
+
+
+# Ajustando um modelo inicial com todas as variáveis
+modelo_full <- glm(IDHM ~ ., data = dados, family = binomial)
+
+# Resumo do modelo completo
+cat("\nResumo do modelo completo:\n")
+summary(modelo_full)
+
+# Realizando a seleção stepwise
+modelo_stepwise <- step(modelo_full, direction = "both", trace = TRUE)
+
+# Resumo do modelo final após stepwise
+cat("\nResumo do modelo após seleção stepwise:\n")
+summary(modelo_stepwise)
+
+# Verificando multicolinearidade no modelo final
+vif_results <- vif(modelo_stepwise)
+cat("\nResultados do VIF para o modelo final:\n")
+print(vif_results)
+
+# Identificando valores influentes
+influence_measures <- influence.measures(modelo_stepwise)
+cat("\nMedidas de influência para o modelo final:\n")
+print(influence_measures)
+
+# Gráfico de Cook's Distance para detectar influências
+plot(modelo_stepwise, which = 4, main = "Gráfico de Cook's Distance")
+
+# Verificando a linearidade do logit
+# Criando gráficos de dispersão
+logit_values <- predict(modelo_stepwise, type = "link")  # Logit estimado
+
+# Gráfico para x1
+ggplot(data, aes(x = x1, y = logit_values)) + 
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(title = "Verificação da Linearidade do Logit para x1",
+       x = "x1",
+       y = "Logit estimado") +
+  theme_minimal()
+
+# Gráfico para x2
+ggplot(data, aes(x = x2, y = logit_values)) + 
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(title = "Verificação da Linearidade do Logit para x2",
+       x = "x2",
+       y = "Logit estimado") +
+  theme_minimal()
+
+
+
+
+
+
+
+
+
+
+
 
 
 
