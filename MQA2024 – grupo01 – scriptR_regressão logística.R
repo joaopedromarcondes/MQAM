@@ -182,10 +182,29 @@ cat("Especificidade:", especificidade, "\n")
 matriz_confusao
 
 
+# Obter resíduos e valores ajustados
+residuos <- residuals(modelo_stepwise, type = "deviance")
+ajustados <- fitted(modelo_stepwise)
 
+# Gráfico de Resíduos vs. Valores Ajustados
+plot(ajustados, residuos,
+     xlab = "Valores Ajustados",
+     ylab = "Resíduos",
+     main = "Resíduos vs. Valores Ajustados")
+abline(h = 0, col = "red", lwd = 2)
 
+# Autocorrelação dos Resíduos
+acf(residuos, main = "Autocorrelação dos Resíduos")
 
+# Autocorrelação das Variáveis Independentes
+par(mfrow = c(1, 2))  # Dividir a tela para múltiplos gráficos
+acf(dados$TAXES, main = "Autocorrelação de predictor1")
+acf(dados$AREA, main = "Autocorrelação de predictor2")
+par(mfrow = c(1, 1))  # Resetar a tela para um único gráfico
 
+# Calcular o VIF para cada variável preditora
+vif_valores <- vif(modelo_stepwise)
+print(vif_valores)
 
 
 # Gráfico de Cook's Distance para detectar influências
