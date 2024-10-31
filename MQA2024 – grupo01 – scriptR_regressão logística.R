@@ -223,13 +223,15 @@ ggplot(dados, aes(x = dados["IBGE_CROP_PRODUCTION_$"], y = logit_values)) +
 
 # RODANDO COM DADOS RELATIVIZADOS (DIVIDINDO A POPULAÇÃO POR IMPOSTOS, PRODUÇÃO AGRÍCOLA E ÁREA PARA ACHAR ESSES DADOS RELATIVOS)
 #Preparando o Dataset
+
+#Preparando o Dataset
 tabela <- read_csv("BRAZIL_CITIES.csv")
-dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN")]
-dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA")] # removendo rural_urban por ser qualitativa
+dados <- tabela[, c("IDHM", "TAXES", "IBGE_PLANTED_AREA", "IBGE_DU", "RURAL_URBAN")]
+dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_PLANTED_AREA", "IBGE_DU")]
 
 # Dados antes de tratar
 #datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
-boxplot(select(dados, -RURAL_URBAN))
+boxplot(dplyr::select(dados, -RURAL_URBAN))
 pie(sort(table(dados$RURAL_URBAN)))
 
 # Tratar dados
@@ -247,48 +249,48 @@ cat("Número de linhas restantes:", tamanho_dataset_apos_remover_negativos, "\n"
 
 boxplot(dados$IDHM)
 boxplot(dados$TAXES)
-boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
-boxplot(dados$AREA)
+boxplot(dados$IBGE_PLANTED_AREA)
+boxplot(dados$IBGE_DU)
+
+
+### Tratamento dos dados ###
+# transformação logarítmica em TAXES
+dados$TAXES <- log(dados$TAXES)
+
+# transformação logarítmica em IBGE_CROP_PRODUCTION
+dados$IBGE_PLANTED_AREA <- log(dados$IBGE_PLANTED_AREA)
+
+# transformação logarítmica em AREA
+dados$IBGE_DU <- log(dados$IBGE_DU)
+
+datatable(sapply((dados), descrever_coluna))
+
+# Variáveis Quantitativas
+boxplot(dados$IDHM)
+boxplot(dados$TAXES)
+boxplot(dados$IBGE_PLANTED_AREA)
+boxplot(dados$IBGE_DU)
+
+# Variáveis Qualitativas
+pie(sort(table(dados$RURAL_URBAN)))
+sort(table(dados$RURAL_URBAN))
 
 
 
-dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN", "IBGE_RES_POP")]
-dados$TAXES <- dados$IBGE_RES_POP / dados$TAXES
-dados[["IBGE_CROP_PRODUCTION_$"]] <- dados$IBGE_RES_POP / dados[["IBGE_CROP_PRODUCTION_$"]]
-dados$AREA <- dados$IBGE_RES_POP / dados$AREA
+# Transformar qualitativas em DUMMY
+# Fixa-se Intermediário Adjacente.
+dados <- dummy_cols(dados, select_columns = "RURAL_URBAN", remove_first_dummy = TRUE)
+dados <- select(dados, -RURAL_URBAN)
+
+
+# Transformar IDH em Qualitativa Binária
+dados$IDHM <- as.numeric(dados$IDHM > 0.7)
+
+
 
 ### MODELO REGRESSÃO ###
 # Ajustando um modelo inicial com todas as variáveis
 modelo_full <- glm(IDHM ~ ., data = dados, family = binomial(link = "logit"))
-
-#GPT
-# Preparando o Dataset
-dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN", "IBGE_RES_POP")]
-
-# Removendo linhas com valores zero em TAXES, IBGE_CROP_PRODUCTION_$ e AREA para evitar divisão por zero
-dados <- dados[!(dados$TAXES == 0 | dados[["IBGE_CROP_PRODUCTION_$"]] == 0 | dados$AREA == 0), ]
-
-# Realizando as divisões per capita
-dados$TAXES <- dados$TAXES / dados$IBGE_RES_POP
-dados[["IBGE_CROP_PRODUCTION_$"]] <- dados[["IBGE_CROP_PRODUCTION_$"]] / dados$IBGE_RES_POP
-dados$AREA <- dados$AREA / dados$IBGE_RES_POP
-
-# Convertendo RURAL_URBAN para fator, se necessário
-dados$RURAL_URBAN <- as.factor(dados$RURAL_URBAN)
-
-# Transformando IDHM em uma variável binária para a regressão logística
-dados$IDHM_bin <- as.integer(dados$IDHM > 0.5)
-
-# Removendo linhas com valores NA, NaN ou Inf
-dados <- dados[complete.cases(dados), ]
-  
-# Ajustando o modelo de regressão logística com o nome da coluna entre crases
-modelo_full <- glm(IDHM_bin ~ TAXES + `IBGE_CROP_PRODUCTION_$` + AREA + RURAL_URBAN, data = dados, family = binomial(link = "logit"))
-
-library(car)
-vif(modelo_full)
-
-
 
 plot(modelo_full, 5)
 summary(stdres(modelo_full))
