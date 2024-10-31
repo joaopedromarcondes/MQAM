@@ -31,7 +31,7 @@ dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA")
 
 # Dados antes de tratar
 #datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
-boxplot(select(dados, -RURAL_URBAN))
+boxplot(dplyr::select(dados, -RURAL_URBAN))
 pie(sort(table(dados$RURAL_URBAN)))
 
 # Tratar dados
@@ -63,7 +63,7 @@ dados[["IBGE_CROP_PRODUCTION_$"]] <- log(dados[["IBGE_CROP_PRODUCTION_$"]])
 # transformação logarítmica em AREA
 dados$AREA <- log(dados$AREA)
 
-datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
+datatable(sapply(dplyr::select(dados, -RURAL_URBAN), descrever_coluna))
 
 # Variáveis Quantitativas
 boxplot(dados$IDHM)
