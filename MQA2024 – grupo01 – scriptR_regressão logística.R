@@ -4,7 +4,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 }
 
 library(pacman)
-pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse, car)
+pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse, car, psych, MASS)
 
 # Definir funções importantes
 moda <- function(x) {
@@ -40,7 +40,7 @@ pie(sort(table(dados$RURAL_URBAN)))
 dados_negativos_ou_na <- (dados_numericos <= 0) | (is.na(dados_numericos))
 length(which(dados_negativos_ou_na))
 dados <- dados[!apply(dados_negativos_ou_na, 1, any), ]
-summary(dados)
+
 # Contar quantas linhas sobraram após a remoção
 tamanho_dataset_apos_remover_negativos <- nrow(dados)
 
@@ -106,7 +106,16 @@ dados$IDHM <- as.numeric(dados$IDHM > 0.7)
 
 ### MODELO REGRESSÃO ###
 # Ajustando um modelo inicial com todas as variáveis
-modelo_full <- glm(IDHM ~ ., data = dados, family = binomial)
+modelo_full <- glm(IDHM ~ ., data = dados, family = binomial(link = "logit"))
+
+plot(modelo_full, 5)
+summary(stdres(modelo_full))
+
+heatmap(abs(cor(dados)))
+vif(modelo_full)
+
+
+
 
 # Resumo do modelo completo
 cat("\nResumo do modelo completo:\n")
@@ -125,9 +134,9 @@ cat("\nResultados do VIF para o modelo final:\n")
 print(vif_results)
 
 # Identificando valores influentes
-influence_measures <- influence.measures(modelo_stepwise)
-cat("\nMedidas de influência para o modelo final:\n")
-print(influence_measures)
+# influence_measures <- influence.measures(modelo_stepwise)
+# cat("\nMedidas de influência para o modelo final:\n")
+# print(influence_measures)
 
 # Calculando Log Likehood para o modelo
 modelo_log_likelihood <- logLik(modelo_stepwise)
@@ -141,27 +150,27 @@ null_model <- glm(IDHM ~ 1, data = dados, family = binomial)
 log_likelihood_null <- logLik(null_model)
 cat("\nLog Likelihood:\n")
 print(log_likelihood_null)
-1-logLik(modelo_stepwise)/logLik(null_model)
+pseudo_r2 <- 1-logLik(modelo_stepwise)/logLik(null_model)
+cat("\nPseudo R2: ", pseudo_r2, "\n")
 
+# # Calcular o pseudo R^2 de Cox-Snell
+# n <- nrow(dados)  # Número de observações
+# pseudo_R2_cox_snell <- 1 - ((log_likelihood_null / modelo_log_likelihood)^(2 / n))
+# pseudo_R2_cox_snell
 
-# Calcular o pseudo R^2 de Cox-Snell
-n <- nrow(dados)  # Número de observações
-pseudo_R2_cox_snell <- 1 - ((log_likelihood_null / modelo_log_likelihood)^(2 / n))
-pseudo_R2_cox_snell
+# # Calcular o pseudo R^2 de Nagelkerke
+# pseudo_R2_nagelkerke <- pseudo_R2_cox_snell / (1 - exp((2 / n) * log_likelihood_null))
 
-# Calcular o pseudo R^2 de Nagelkerke
-pseudo_R2_nagelkerke <- pseudo_R2_cox_snell / (1 - exp((2 / n) * log_likelihood_null))
-
-# Exibir o valor do pseudo R^2 de Nagelkerke
-cat("Pseudo R^2 de Nagelkerke:", pseudo_R2_nagelkerke, "\n")
-cat("Log-Likelihood do modelo ajustado:", modelo_log_likelihood, "\n")
-cat("Log-Likelihood do modelo nulo:", log_likelihood_null, "\n")
+# # Exibir o valor do pseudo R^2 de Nagelkerke
+# cat("Pseudo R^2 de Nagelkerke:", pseudo_R2_nagelkerke, "\n")
+# cat("Log-Likelihood do modelo ajustado:", modelo_log_likelihood, "\n")
+# cat("Log-Likelihood do modelo nulo:", log_likelihood_null, "\n")
 
 
 
 # Gerar previsões com probabilidade
 probabilidades <- predict(modelo_stepwise, type = "response")
-plot(sort(probabilidades))
+probabilidades
 # Definir o limiar para classificação binária (0.5, por exemplo)
 previsoes <- ifelse(probabilidades > 0.6, 1, 0)
 
@@ -215,8 +224,8 @@ plot(modelo_stepwise, which = 4, main = "Gráfico de Cook's Distance")
 logit_values <- predict(modelo_stepwise, type = "link")  # Logit estimado
 
 # Gráfico para x1
-ggplot(dados, aes(x = TAXES, y = logit_values)) + 
-  geom_point() +
+ggplot(dados, aes(x = TAXES, y = logit_values)) +
+  geom_point(size = 0.7, alpha = 1) +
   geom_smooth(method = "loess", se = FALSE) +
   labs(title = "Verificação da Linearidade do Logit para Taxes",
        x = "x1",
@@ -224,19 +233,31 @@ ggplot(dados, aes(x = TAXES, y = logit_values)) +
   theme_minimal()
 
 # Gráfico para x2
-ggplot(dados, aes(x = AREA, y = logit_values)) + 
-  geom_point() +
+ggplot(dados, aes(x = AREA, y = logit_values)) +
+  geom_point(size = 0.5) +
   geom_smooth(method = "loess", se = FALSE) +
   labs(title = "Verificação da Linearidade do Logit para x2",
        x = "x2",
        y = "Logit estimado") +
   theme_minimal()
 
+# Gráfico para x2
+ggplot(dados, aes(x = "IBGE_CROP_PRODUCTION_$", y = logit_values)) +
+  geom_point(size = 0.5) +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(title = "Verificação da Linearidade do Logit para x2",
+       x = "x2",
+       y = "Logit estimado") +
+  theme_minimal()
 
-
-
-
-
+# Gráfico para x2
+ggplot(dados, aes(x = dados["IBGE_CROP_PRODUCTION_$"], y = logit_values)) +
+  geom_point() +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(title = "Verificação da Linearidade do Logit para x2",
+       x = "x2",
+       y = "Logit estimado") +
+  theme_minimal()
 
 
 
