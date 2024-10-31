@@ -63,7 +63,7 @@ dados[["IBGE_CROP_PRODUCTION_$"]] <- log(dados[["IBGE_CROP_PRODUCTION_$"]])
 # transformação logarítmica em AREA
 dados$AREA <- log(dados$AREA)
 
-datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
+datatable(sapply(dplyr::select(dados, -RURAL_URBAN), descrever_coluna))
 
 # Variáveis Quantitativas
 boxplot(dados$IDHM)
