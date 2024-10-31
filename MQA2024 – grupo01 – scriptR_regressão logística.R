@@ -52,6 +52,8 @@ boxplot(dados$TAXES)
 boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
 boxplot(dados$AREA)
 
+
+### Tratamento dos dados ###
 # transformação logarítmica em TAXES
 dados$TAXES <- log(dados$TAXES)
 
@@ -62,24 +64,6 @@ dados[["IBGE_CROP_PRODUCTION_$"]] <- log(dados[["IBGE_CROP_PRODUCTION_$"]])
 dados$AREA <- log(dados$AREA)
 
 datatable(sapply(select(dados, -RURAL_URBAN), descrever_coluna))
-
-# #calculando as estatísticas descritivas das varíaveis
-# media <- sapply(dados, mean, na.rm = TRUE)
-# mediana <- sapply(dados, median, na.rm = TRUE)
-# variancia <- sapply(dados, var, na.rm = TRUE)
-# desvio_padrao <- sapply(dados, sd, na.rm = TRUE)
-# coef_var <- (desvio_padrao / media) * 100
-
-# # Exibir os resultados em um data frame
-# estatisticas_descritivas <- data.frame(
-#   Media = media,
-#   Mediana = mediana,
-#   Variancia = variancia,
-#   DesvioPadrao = desvio_padrao,
-#   CoeficienteDeVariacao = coef_var
-# )
-
-#print(estatisticas_descritivas)
 
 # Variáveis Quantitativas
 boxplot(dados$IDHM)
@@ -133,10 +117,6 @@ vif_results <- vif(modelo_stepwise)
 cat("\nResultados do VIF para o modelo final:\n")
 print(vif_results)
 
-# Identificando valores influentes
-# influence_measures <- influence.measures(modelo_stepwise)
-# cat("\nMedidas de influência para o modelo final:\n")
-# print(influence_measures)
 
 # Calculando Log Likehood para o modelo
 modelo_log_likelihood <- logLik(modelo_stepwise)
@@ -150,22 +130,9 @@ null_model <- glm(IDHM ~ 1, data = dados, family = binomial)
 log_likelihood_null <- logLik(null_model)
 cat("\nLog Likelihood:\n")
 print(log_likelihood_null)
-pseudo_r2 <- 1-logLik(modelo_stepwise)/logLik(null_model)
+
+pseudo_r2 <- 1 - logLik(modelo_stepwise) / logLik(null_model)
 cat("\nPseudo R2: ", pseudo_r2, "\n")
-
-# # Calcular o pseudo R^2 de Cox-Snell
-# n <- nrow(dados)  # Número de observações
-# pseudo_R2_cox_snell <- 1 - ((log_likelihood_null / modelo_log_likelihood)^(2 / n))
-# pseudo_R2_cox_snell
-
-# # Calcular o pseudo R^2 de Nagelkerke
-# pseudo_R2_nagelkerke <- pseudo_R2_cox_snell / (1 - exp((2 / n) * log_likelihood_null))
-
-# # Exibir o valor do pseudo R^2 de Nagelkerke
-# cat("Pseudo R^2 de Nagelkerke:", pseudo_R2_nagelkerke, "\n")
-# cat("Log-Likelihood do modelo ajustado:", modelo_log_likelihood, "\n")
-# cat("Log-Likelihood do modelo nulo:", log_likelihood_null, "\n")
-
 
 
 # Gerar previsões com probabilidade
@@ -202,33 +169,27 @@ plot(ajustados, residuos,
      main = "Resíduos vs. Valores Ajustados")
 abline(h = 0, col = "red", lwd = 2)
 
-# Autocorrelação dos Resíduos
-acf(residuos, main = "Autocorrelação dos Resíduos")
 
-# Autocorrelação das Variáveis Independentes
-par(mfrow = c(1, 2))  # Dividir a tela para múltiplos gráficos
-acf(dados$TAXES, main = "Autocorrelação de predictor1")
-acf(dados$AREA, main = "Autocorrelação de predictor2")
-par(mfrow = c(1, 1))  # Resetar a tela para um único gráfico
+
 
 # Calcular o VIF para cada variável preditora
 vif_valores <- vif(modelo_stepwise)
 print(vif_valores)
 
 
-# Gráfico de Cook's Distance para detectar influências
-plot(modelo_stepwise, which = 4, main = "Gráfico de Cook's Distance")
 
 # Verificando a linearidade do logit
 # Criando gráficos de dispersão
 logit_values <- predict(modelo_stepwise, type = "link")  # Logit estimado
 
-# Gráfico para x1
+
+
+# Gráfico para Taxes
 ggplot(dados, aes(x = TAXES, y = logit_values)) +
   geom_point(size = 0.7, alpha = 1) +
   geom_smooth(method = "loess", se = FALSE) +
   labs(title = "Verificação da Linearidade do Logit para Taxes",
-       x = "x1",
+       x = "Taxes",
        y = "Logit estimado") +
   theme_minimal()
 
@@ -258,55 +219,4 @@ ggplot(dados, aes(x = dados["IBGE_CROP_PRODUCTION_$"], y = logit_values)) +
        x = "x2",
        y = "Logit estimado") +
   theme_minimal()
-
-
-
-
-
-
-
-
-###Tratando as variáveis
-
-#Pensamos em tratar algumas variáveis (em relação ao tamanho da população)
-#com isso deixando a visualização mais palpável dos nossos gráficos
-
-#######################################################################
-
-#Calculo do log-likelihood
-log_likelihood <- function(x) {
-  print("Hello")
-}
-log_likelihood
-
-#Calculo do pseudo-R²
-pseudo_r_quadrado <- function(x) {
-  print("Hello")
-}
-
-#Tabela de Confusão, sensibilidade, especifidade e acurácia
-tabela_confusao() <- function(x) {
-  print("Hello")
-}
-
-#Tendencia de Recursos
-grafico_tendencia_recursos <- function(x) {
-  print("Hello")
-}
-
-#Autocorrelação dos resíduos e das variáveis independentes
-grafico_autocorrelacao <- function(x) {
-
-}
-
-#Multicolinearidade das variáveis preditoras
-multi <- function(x) {
-
-}
-
-#Coeficientes B0, B1, B2, ...
-
-#######################################################################
-
-#Saida da Regressão Logística
 
