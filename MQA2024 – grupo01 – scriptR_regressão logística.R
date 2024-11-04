@@ -165,54 +165,9 @@ matriz_confusao
 residuos <- residuals(modelo_stepwise, type = "deviance")
 ajustados <- fitted(modelo_stepwise)
 
-# Ajustar o modelo
-modelo_full <- glm(IDHM ~ TAXES + `IBGE_CROP_PRODUCTION_$` + AREA, data = dados, family = binomial(link = "logit"))
-
-# Resumo do modelo
-summary(modelo_full)
-
-# Coeficientes
-coeficientes <- coef(modelo_full)
-print(coeficientes)
-
-# Odds Ratios
-odds_ratios <- exp(coeficientes)
-print(odds_ratios)
-
-# Intervalos de Confiança
-ic <- confint(modelo_full)
-odds_ratios_ic <- exp(ic)
-print(odds_ratios_ic)
-
-
-
-# Calcular o VIF para cada variável preditora
-vif_valores <- vif(modelo_stepwise)
-print(vif_valores)
 
 
 
 # Verificando a linearidade do logit
 # Criando gráficos de dispersão
 logit_values <- predict(modelo_stepwise, type = "link")  # Logit estimado
-
-
-
-# Gráfico para Taxes
-ggplot(dados, aes(x = TAXES, y = logit_values)) +
-  geom_point(size = 0.7, alpha = 1) +
-  geom_smooth(method = "loess", se = FALSE) +
-  labs(title = "Verificação da Linearidade do Logit para Taxes",
-       x = "Taxes",
-       y = "Logit estimado") +
-  theme_minimal()
-
-
-# Ajustando o modelo (exemplo)
-modelo_full <- glm(IDHM ~ ., data = dados, family = binomial(link = "logit"))
-
-# Calculando os resíduos
-residuos <- residuals(modelo_full)
-
-# Calculando os valores ajustados
-valores_ajustados <- fitted(modelo_full)
