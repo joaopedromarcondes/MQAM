@@ -22,6 +22,12 @@ descrever_coluna <- function(x) {
   )
 }
 
+# Instale o pacote se ainda não estiver instalado
+install.packages("lmtest")
+
+# Carregue o pacote
+library(lmtest)
+
 
 
 #Preparando o Dataset
@@ -169,6 +175,24 @@ plot(ajustados, residuos,
      main = "Resíduos vs. Valores Ajustados")
 abline(h = 0, col = "red", lwd = 2)
 
+# Ajustar o modelo
+modelo_full <- glm(IDHM ~ TAXES + `IBGE_CROP_PRODUCTION_$` + AREA, data = dados, family = binomial(link = "logit"))
+
+# Resumo do modelo
+summary(modelo_full)
+
+# Coeficientes
+coeficientes <- coef(modelo_full)
+print(coeficientes)
+
+# Odds Ratios
+odds_ratios <- exp(coeficientes)
+print(odds_ratios)
+
+# Intervalos de Confiança
+ic <- confint(modelo_full)
+odds_ratios_ic <- exp(ic)
+print(odds_ratios_ic)
 
 
 
@@ -220,7 +244,23 @@ ggplot(dados, aes(x = dados["IBGE_CROP_PRODUCTION_$"], y = logit_values)) +
        y = "Logit estimado") +
   theme_minimal()
 
+# Ajustando o modelo (exemplo)
+modelo_full <- glm(IDHM ~ ., data = dados, family = binomial(link = "logit"))
 
+# Calculando os resíduos
+residuos <- residuals(modelo_full)
+
+# Calculando os valores ajustados
+valores_ajustados <- fitted(modelo_full)
+
+# Criando o gráfico
+plot(valores_ajustados, residuos, 
+     xlab = "Valores Ajustados", 
+     ylab = "Resíduos", 
+     main = "Gráfico de Resíduos vs. Valores Ajustados")
+
+# Adicionando uma linha horizontal em zero
+abline(h = 0, col = "red", lty = 2)
 # RODANDO COM DADOS RELATIVIZADOS (DIVIDINDO A POPULAÇÃO POR IMPOSTOS, PRODUÇÃO AGRÍCOLA E ÁREA PARA ACHAR ESSES DADOS RELATIVOS)
 #Preparando o Dataset
 
