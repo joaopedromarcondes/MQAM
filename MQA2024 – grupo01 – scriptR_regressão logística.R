@@ -165,8 +165,10 @@ matriz_confusao
 residuos <- residuals(modelo_stepwise, type = "deviance")
 ajustados <- fitted(modelo_stepwise)
 
-
-
+dw_teste <- dwtest(modelo_stepwise)
+mk_teste <- mk.test(residuos)
+cat("Teste de Durbin-Watson: ", dw_teste)
+cat("Teste de Mann-Kendal: ", mk_teste)
 
 # Verificando a linearidade do logit
 # Criando gráficos de dispersão
