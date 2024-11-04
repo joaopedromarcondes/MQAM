@@ -4,7 +4,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 }
 
 library(pacman)
-pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse, car, psych, MASS)
+pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse, car, psych, MASS, lmtest, trend)
 
 # Definir funções importantes
 moda <- function(x) {
@@ -80,7 +80,7 @@ sort(table(dados$RURAL_URBAN))
 # Transformar qualitativas em DUMMY
 # Fixa-se Intermediário Adjacente.
 dados <- dummy_cols(dados, select_columns = "RURAL_URBAN", remove_first_dummy = TRUE)
-dados <- select(dados, -RURAL_URBAN)
+dados <- dplyr::select(dados, -RURAL_URBAN)
 
 
 # Transformar IDH em Qualitativa Binária
@@ -135,11 +135,32 @@ pseudo_r2 <- 1 - logLik(modelo_stepwise) / logLik(null_model)
 cat("\nPseudo R2: ", pseudo_r2, "\n")
 
 
+# Obter os coeficientes do modelo
+coeficientes <- summary(modelo_full)$coefficients
+
+# Calcular o Odds Ratio
+odds_ratios <- exp(coeficientes[, "Estimate"])
+print(odds_ratios)
+
+# Calcular o intervalo de confiança
+alpha <- 0.05 # nível de significância
+ci_lower <- exp(coeficientes[, "Estimate"] - qnorm(1 - alpha / 2) * coeficientes[, "Std. Error"])
+ci_upper <- exp(coeficientes[, "Estimate"] + qnorm(1 - alpha / 2) * coeficientes[, "Std. Error"])
+
+# Combinar Odds Ratios e intervalos de confiança em um data frame
+resultados <- data.frame(
+  Odds_Ratio = odds_ratios,
+  CI_Lower = ci_lower,
+  CI_Upper = ci_upper
+)
+
+print(resultados)
+
 # Gerar previsões com probabilidade
 probabilidades <- predict(modelo_stepwise, type = "response")
 probabilidades
 # Definir o limiar para classificação binária (0.5, por exemplo)
-previsoes <- ifelse(probabilidades > 0.6, 1, 0)
+previsoes <- ifelse(probabilidades > 0.5, 1, 0)
 
 # Criar a matriz de confusão
 matriz_confusao <- table(Predito = previsoes, Real = dados$IDHM)
@@ -161,6 +182,20 @@ matriz_confusao
 # Obter resíduos e valores ajustados
 residuos <- residuals(modelo_stepwise, type = "deviance")
 ajustados <- fitted(modelo_stepwise)
+
+
+# Autocorrelação dos Resíduos
+acf(residuos, main = "Autocorrelação dos Resíduos")
+
+#Teste de Durbin-Watson para autocorrelação dos resíduos
+dw_test <- dwtest(modelo_stepwise, alternative = "two.sided")
+print(dw_test)
+
+# Teste dos resíduos
+# Aplicar o Teste de Mann-Kendall para tendência nos resíduos
+teste_tendencia <- mk.test(residuos)
+print(teste_tendencia)
+
 
 # Gráfico de Resíduos vs. Valores Ajustados
 plot(ajustados, residuos,
