@@ -4,7 +4,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 }
 
 library(pacman)
-pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies)
+pacman::p_load(dplyr, ggplot2, readxl, readr, DT)
 
 # Definir funções importantes
 moda <- function(x) {
@@ -24,11 +24,8 @@ descrever_coluna <- function(x) {
 
 #Preparando o Dataset
 tabela <- read_csv("BRAZIL_CITIES.csv")
-dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN")]
-dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA")] # removendo rural_urban por ser qualitativa
-
-# Dados antes de tratar
-pie(sort(table(dados$RURAL_URBAN)))
+dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$")]
+dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$")]
 
 # Tratar dados
 # Remover os valores 0 e os valores menores que 0
@@ -36,6 +33,7 @@ pie(sort(table(dados$RURAL_URBAN)))
 dados_negativos_ou_na <- (dados_numericos <= 0) | (is.na(dados_numericos))
 length(which(dados_negativos_ou_na))
 dados <- dados[!apply(dados_negativos_ou_na, 1, any), ]
+dados_numericos <- dados_numericos[!apply(dados_negativos_ou_na, 1, any), ]
 
 # Contar quantas linhas sobraram após a remoção
 tamanho_dataset_apos_remover_negativos <- nrow(dados)
@@ -43,37 +41,38 @@ tamanho_dataset_apos_remover_negativos <- nrow(dados)
 # Exibir o número de linhas restantes
 cat("Número de linhas restantes:", tamanho_dataset_apos_remover_negativos, "\n")
 
-boxplot(dados$IDHM)
-boxplot(dados$TAXES)
+boxplot(dados$IBGE_PLANTED_AREA)
 boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
-boxplot(dados$AREA)
 
 
 ### Tratamento dos dados ###
-# transformação logarítmica em TAXES
-dados$TAXES <- log(dados$TAXES)
+dados_padronizados <- scale(dados_numericos)
+class(dados_padronizados)
 
-# transformação logarítmica em IBGE_CROP_PRODUCTION
-dados[["IBGE_CROP_PRODUCTION_$"]] <- log(dados[["IBGE_CROP_PRODUCTION_$"]])
+# Calcular a matriz de distâncias
+distancia <- dist(dados_padronizados, method = "euclidean")
 
-# transformação logarítmica em AREA
-dados$AREA <- log(dados$AREA)
+# Aplicar o método de clusterização hierárquica (método de ligação completa)
+modelo_hclust <- hclust(distancia, method = "complete")
 
-datatable(sapply(dplyr::select(dados, -RURAL_URBAN), descrever_coluna))
-
-# Variáveis Quantitativas
-boxplot(dados$IDHM)
-boxplot(dados$TAXES)
-boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
-boxplot(dados$AREA)
-
-# Variáveis Qualitativas
-pie(sort(table(dados$RURAL_URBAN)))
-sort(table(dados$RURAL_URBAN))
+# Plotar o dendrograma
+plot(modelo_hclust, labels = rownames(dados),
+     main = "Dendrograma de Clusterização Hierárquica")
 
 
+# Cortar em 3 clusters
+grupos <- cutree(modelo_hclust, k = 8)
+print(grupos)
+dados$grupo <- grupos
+dados[which(dados$grupo == 5), ]
+table(grupos)
 
-# Transformar qualitativas em DUMMY
-# Fixa-se Intermediário Adjacente.
-dados <- dummy_cols(dados, select_columns = "RURAL_URBAN", remove_first_dummy = TRUE)
-dados <- dplyr::select(dados, -RURAL_URBAN)
+
+library(cluster)
+
+# Aplicar o método PAM com 3 clusters
+modelo_pam <- pam(dados_padronizados, k = 50)
+
+# Visualizar clusters com um gráfico em silhueta
+plot(modelo_pam)
+
