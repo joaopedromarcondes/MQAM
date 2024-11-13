@@ -24,8 +24,8 @@ descrever_coluna <- function(x) {
 
 #Preparando o Dataset
 tabela <- read_csv("BRAZIL_CITIES.csv")
-dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$")]
-dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$")]
+dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "AREA")]
+dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "AREA")]
 
 # Tratar dados
 # Remover os valores 0 e os valores menores que 0
@@ -43,9 +43,36 @@ cat("Número de linhas restantes:", tamanho_dataset_apos_remover_negativos, "\n"
 
 boxplot(dados$IBGE_PLANTED_AREA)
 boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
+boxplot(dados[["IBGE_RES_POP"]])
+boxplot(dados[["TAXES"]])
+boxplot(dados[["AREA"]])
+
+
+#IMPOSTO PERCAPTA
+dados_numericos["TAXES"] <- dados_numericos["TAXES"] / dados_numericos["IBGE_RES_POP"]
+
+#BOXPLOT IMPOSTO PER CAPTA
+boxplot(dados_numericos[, "TAXES"])
+
+#DENSIDADE DEMOGRAFICA
+dados_numericos["IBGE_RES_POP"] <- dados_numericos["IBGE_RES_POP"] / dados_numericos["AREA"]
+
+#BOXPLOT IMPOSTO PER CAPTA
+boxplot(dados_numericos[, "TAXES"])
+
 
 dados_numericos[, "IBGE_PLANTED_AREA"] <- log(dados_numericos[, "IBGE_PLANTED_AREA"])
 dados_numericos[, "IBGE_CROP_PRODUCTION_$"] <- log(dados_numericos[, "IBGE_CROP_PRODUCTION_$"])
+dados_numericos[, "IBGE_RES_POP"] <- log(dados_numericos[, "IBGE_RES_POP"])
+dados_numericos[, "TAXES"] <- log(dados_numericos[, "TAXES"])
+
+
+### BOXPLOTS DOS DADOS APÓS TRANSFORMACAO LOGARITMICA
+boxplot(dados_numericos[, "IBGE_PLANTED_AREA"])
+boxplot(dados_numericos[, "IBGE_CROP_PRODUCTION_$"])
+boxplot(dados_numericos[, "IBGE_RES_POP"])
+boxplot(dados_numericos[, "TAXES"])
+
 
 ### Tratamento dos dados ###
 dados_padronizados <- scale(dados_numericos)
@@ -63,10 +90,10 @@ plot(modelo_hclust, labels = rownames(dados),
 
 
 # Cortar em 3 clusters
-grupos <- cutree(modelo_hclust, k = 8)
-print(grupos)
+grupos <- cutree(modelo_hclust, k = 3)
+#print(grupos)
 dados$grupo <- grupos
-dados[which(dados$grupo == 5), ]
+dados[which(dados$grupo == 4), ]
 table(grupos)
 
 
