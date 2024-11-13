@@ -44,6 +44,8 @@ cat("Número de linhas restantes:", tamanho_dataset_apos_remover_negativos, "\n"
 boxplot(dados$IBGE_PLANTED_AREA)
 boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
 
+dados_numericos[, "IBGE_PLANTED_AREA"] <- log(dados_numericos[, "IBGE_PLANTED_AREA"])
+dados_numericos[, "IBGE_CROP_PRODUCTION_$"] <- log(dados_numericos[, "IBGE_CROP_PRODUCTION_$"])
 
 ### Tratamento dos dados ###
 dados_padronizados <- scale(dados_numericos)
