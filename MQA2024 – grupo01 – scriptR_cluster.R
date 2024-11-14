@@ -120,6 +120,40 @@ grafico5 <- criar_grafico_frequencia(dados_numericos, "IDHM", 0.1, "Frequência 
 library(gridExtra)
 grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, ncol = 2)
 
+#tabela de distribuicao de frequencia com frequencia absoluta e relativa e com numero absoluto
+# Função para criar a tabela de distribuição de frequência com frequências absolutas e relativas
+criar_tabela_frequencia <- function(dados, variavel, intervalo) {
+  # Criar os intervalos
+  intervalos <- cut(dados[[variavel]], breaks = seq(min(dados[[variavel]], na.rm = TRUE), 
+                                                    max(dados[[variavel]], na.rm = TRUE), 
+                                                    by = intervalo), 
+                    include.lowest = TRUE, right = FALSE)
+  
+  # Frequências absolutas
+  frequencias_absolutas <- table(intervalos)
+  
+  # Frequências relativas
+  frequencias_relativas <- prop.table(frequencias_absolutas)
+  
+  # Criar a tabela final combinando frequências absolutas e relativas
+  tabela <- data.frame(
+    Intervalo = names(frequencias_absolutas),
+    Frequencia_Absoluta = as.vector(frequencias_absolutas),
+    Frequencia_Relativa = round(as.vector(frequencias_relativas), 4),  # Frequência relativa com 4 casas decimais
+    Numero_Absoluto = sum(frequencias_absolutas)  # Número total de observações (soma das frequências absolutas)
+  )
+  
+  return(tabela)
+}
+
+# Criar tabela de frequência para a variável IBGE_PLANTED_AREA
+tabela_frequencia_ibge_planted_area <- criar_tabela_frequencia(dados_numericos, "IBGE_PLANTED_AREA", 2)
+
+# Exibir a tabela
+datatable(tabela_frequencia_ibge_planted_area)
+
+
+
 
 ### Tratamento dos dados ###
 dados_padronizados <- scale(dados_numericos)
