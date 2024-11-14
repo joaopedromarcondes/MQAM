@@ -96,6 +96,7 @@ frequencias <- list(
 frequencias
 
 
+datatable(sapply(dados_numericos, descrever_coluna))
 ### Tratamento dos dados ###
 dados_padronizados <- scale(dados_numericos)
 class(dados_padronizados)
