@@ -101,38 +101,24 @@ plot(frequencias$IBGE_RES_POP)
 plot(frequencias$TAXES)
 plot(frequencias$IDHM)
 
-#estatisticas descritivas das variaveis quantitativas
-datatable(sapply(dados_numericos, descrever_coluna))
-
-library(ggplot2)
-library(gridExtra)
-
-# Função para converter a tabela de frequência em um gráfico de tabela
-salvar_tabela_como_imagem <- function(nome, tabela) {
-  tabela_df <- as.data.frame(tabela)
-  colnames(tabela_df) <- c("Intervalo", "Frequência")  # Nome das colunas
-
-  # Criar a tabela com ggplot2
-  p <- ggplot(tabela_df, aes(x = "", y = Intervalo, label = Frequência)) +
-    geom_tile(fill = "white", color = "black") +
-    geom_text(aes(label = Frequência), size = 5, color = "black") +
-    labs(title = nome) +
-    theme_minimal() +
-    theme(axis.text.x = element_blank(),
-          axis.ticks.x = element_blank(),
-          axis.text.y = element_text(size = 10),
-          axis.title = element_blank(),
-          panel.grid = element_blank())
-
-  return(p)
+# Função para criar gráfico de frequência com intervalos personalizados
+criar_grafico_frequencia <- function(dados, variavel, intervalo, titulo) {
+  ggplot(dados, aes(x = .data[[variavel]])) +  # Usando .data[[variavel]] para acessar a coluna com nome variável
+    geom_histogram(binwidth = intervalo, fill = "skyblue", color = "black", boundary = 0) +
+    labs(title = titulo, x = variavel, y = "Frequência") +
+    theme_minimal()
 }
 
-# Salvar as tabelas como imagens individuais ou combinadas
-tabelas <- lapply(names(frequencias), function(nome) salvar_tabela_como_imagem(nome, frequencias[[nome]]))
+# Criar gráficos para cada variável
+grafico1 <- criar_grafico_frequencia(dados_numericos, "IBGE_PLANTED_AREA", 2, "Frequência de IBGE_PLANTED_AREA")
+grafico2 <- criar_grafico_frequencia(dados_numericos, "IBGE_CROP_PRODUCTION_$", 2, "Frequência de IBGE_CROP_PRODUCTION_$")
+grafico3 <- criar_grafico_frequencia(dados_numericos, "IBGE_RES_POP", 2, "Frequência de IBGE_RES_POP")
+grafico4 <- criar_grafico_frequencia(dados_numericos, "TAXES", 2, "Frequência de TAXES")
+grafico5 <- criar_grafico_frequencia(dados_numericos, "IDHM", 0.1, "Frequência de IDHM")
 
-# Combina as tabelas em uma imagem
-ggsave("tabelas_frequencia.png", grid.arrange(grobs = tabelas, ncol = 2), width = 10, height = 8)
-
+# Exibir os gráficos
+library(gridExtra)
+grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, ncol = 2)
 
 
 ### Tratamento dos dados ###
