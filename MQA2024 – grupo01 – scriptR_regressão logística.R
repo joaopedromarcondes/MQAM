@@ -23,7 +23,7 @@ descrever_coluna <- function(x) {
 }
 
 #Preparando o Dataset
-tabela <- read_csv("BRAZIL_CITIES.csv")
+tabela <- read_csv2("BRAZIL_CITIES.csv")
 dados <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA", "RURAL_URBAN")]
 dados_numericos <- tabela[, c("IDHM", "TAXES", "IBGE_CROP_PRODUCTION_$", "AREA")] # removendo rural_urban por ser qualitativa
 
