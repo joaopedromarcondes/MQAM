@@ -24,7 +24,7 @@ descrever_coluna <- function(x) {
 
 #Preparando o Dataset
 tabela <- read_csv2("BRAZIL_CITIES.csv")
-dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM")]
+dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM", "RURAL_URBAN")]
 dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM")]
 
 # Tratar dados
@@ -125,3 +125,6 @@ dados
 table(dados$cluster)
 aggregate(dplyr::select(dados, -CITY, -grupo, -cluster), list(dados$cluster), mean)
 dados[which(dados$cluster == 1), ]
+
+table(dados[(dados$RURAL_URBAN == "Intermediário Remoto"), ]$grupo)
+table(dados$RURAL_URBAN)
