@@ -23,7 +23,7 @@ descrever_coluna <- function(x) {
 }
 
 #Preparando o Dataset
-tabela <- read_csv("BRAZIL_CITIES.csv")
+tabela <- read_csv2("BRAZIL_CITIES.csv")
 dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "AREA")]
 dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "AREA")]
 
@@ -81,7 +81,7 @@ class(dados_padronizados)
 distancia <- dist(dados_padronizados, method = "euclidean")
 
 # Aplicar o método de clusterização hierárquica (método de ligação completa)
-modelo_hclust <- hclust(distancia, method = "single")
+modelo_hclust <- hclust(distancia, method = "ward.D2")
 
 # Plotar o dendrograma
 plot(modelo_hclust, labels = rownames(dados),
@@ -92,7 +92,7 @@ plot(modelo_hclust, labels = rownames(dados),
 grupos <- cutree(modelo_hclust, k = 4)
 #print(grupos)
 dados$grupo <- grupos
-dados[which(dados$grupo == 5), ]
+dados[which(dados$grupo == 4), ]
 table(grupos)
 aggregate(dplyr::select(dados, -CITY, -grupo), list(dados$grupo), mean)
 
@@ -120,7 +120,7 @@ pca_result <- prcomp(dados_padronizados)
 dados_pca <- as.data.frame(pca_result$x)
 dados_pca$cluster <- as.factor(kmeans_result$cluster)
 
-ggplot(dados_pca, aes(x = PC1, y = PC2, color = cluster)) +
+ggplot(dados_pca, aes(x = PC1, y = PC4, color = cluster)) +
   geom_point(size = 2) +
   labs(title = "Clusters com PCA") +
   theme_minimal()
