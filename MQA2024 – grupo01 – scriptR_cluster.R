@@ -125,3 +125,5 @@ ggplot(dados_pca, aes(x = PC1, y = PC2, color = cluster)) +
   geom_point(size = 2) +
   labs(title = "Clusters com PCA") +
   theme_minimal()
+
+dados
