@@ -93,8 +93,11 @@ frequencias <- list(
 )
 
 # Exibir as tabelas de frequência
-frequencias
-
+plot(frequencias$IBGE_PLANTED_AREA)
+plot(frequencias$IBGE_CROP_PRODUCTION)
+plot(frequencias$IBGE_RES_POP)
+plot(frequencias$TAXES)
+plot(frequencias$IDHM)
 
 datatable(sapply(dados_numericos, descrever_coluna))
 ### Tratamento dos dados ###
