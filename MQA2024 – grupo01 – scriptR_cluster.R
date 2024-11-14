@@ -66,6 +66,34 @@ boxplot(dados_numericos[, "IBGE_CROP_PRODUCTION_$"])
 boxplot(dados_numericos[, "IBGE_RES_POP"])
 boxplot(dados_numericos[, "TAXES"])
 
+#TABELA DE DISTRIBUICAO DE FREQUENCIAS
+# Criação das tabelas de frequência com intervalos personalizados para cada variável
+frequencias <- list(
+  IBGE_PLANTED_AREA = table(cut(dados_numericos$IBGE_PLANTED_AREA, 
+                                breaks = seq(min(dados_numericos$IBGE_PLANTED_AREA, na.rm = TRUE), 
+                                             max(dados_numericos$IBGE_PLANTED_AREA, na.rm = TRUE), 
+                                             by = 2))),
+  
+  IBGE_CROP_PRODUCTION = table(cut(dados_numericos$"IBGE_CROP_PRODUCTION_$", 
+                                   breaks = seq(min(dados_numericos$"IBGE_CROP_PRODUCTION_$", na.rm = TRUE), 
+                                                max(dados_numericos$"IBGE_CROP_PRODUCTION_$", na.rm = TRUE), 
+                                                by = 2))),
+  
+  IBGE_RES_POP = table(cut(dados_numericos$IBGE_RES_POP, 
+                           breaks = seq(min(dados_numericos$IBGE_RES_POP, na.rm = TRUE), 
+                                        max(dados_numericos$IBGE_RES_POP, na.rm = TRUE), 
+                                        by = 2))),
+  
+  TAXES = table(cut(dados_numericos$TAXES, 
+                    breaks = seq(min(dados_numericos$TAXES, na.rm = TRUE), 
+                                 max(dados_numericos$TAXES, na.rm = TRUE), 
+                                 by = 2))),
+  
+  IDHM = table(cut(dados_numericos$IDHM, breaks = seq(0, 1, by = 0.1)))  # Intervalos de 0,1 para IDHM
+)
+
+# Exibir as tabelas de frequência
+frequencias
 
 
 ### Tratamento dos dados ###
