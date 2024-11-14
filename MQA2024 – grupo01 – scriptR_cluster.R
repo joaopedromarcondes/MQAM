@@ -4,7 +4,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 }
 
 library(pacman)
-pacman::p_load(dplyr, ggplot2, readxl, readr, DT)
+pacman::p_load(dplyr, ggplot2, readxl, readr, DT, factoextra)
 
 # Definir funções importantes
 moda <- function(x) {
@@ -89,12 +89,11 @@ plot(modelo_hclust, labels = rownames(dados),
 
 
 # Cortar em 3 clusters
-grupos <- cutree(modelo_hclust, k = 5)
+grupos <- cutree(modelo_hclust, k = 4)
 #print(grupos)
 dados$grupo <- grupos
-dados[which(dados$grupo == 4), ]
+dados[which(dados$grupo == 5), ]
 table(grupos)
-
 aggregate(dplyr::select(dados, -CITY, -grupo), list(dados$grupo), mean)
 
 library(cluster)
