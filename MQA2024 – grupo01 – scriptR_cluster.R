@@ -45,8 +45,6 @@ boxplot(dados$IBGE_PLANTED_AREA)
 boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
 boxplot(dados[["IBGE_RES_POP"]])
 boxplot(dados[["TAXES"]])
-boxplot(dados[["AREA"]])
-
 
 #IMPOSTO PERCAPTA
 dados_numericos["TAXES"] <- dados_numericos["TAXES"] / dados_numericos["IBGE_RES_POP"]
@@ -54,11 +52,6 @@ dados_numericos["TAXES"] <- dados_numericos["TAXES"] / dados_numericos["IBGE_RES
 #BOXPLOT IMPOSTO PER CAPTA
 boxplot(dados_numericos[, "TAXES"])
 
-#DENSIDADE DEMOGRAFICA
-dados_numericos["IBGE_RES_POP"] <- dados_numericos["IBGE_RES_POP"] / dados_numericos["AREA"]
-
-#BOXPLOT IMPOSTO PER CAPTA
-boxplot(dados_numericos[, "IBGE_RES_POP"])
 
 dados_numericos[, "IBGE_PLANTED_AREA"] <- log(dados_numericos[, "IBGE_PLANTED_AREA"])
 dados_numericos[, "IBGE_CROP_PRODUCTION_$"] <- log(dados_numericos[, "IBGE_CROP_PRODUCTION_$"])
@@ -78,7 +71,7 @@ dados_padronizados <- scale(dados_numericos)
 class(dados_padronizados)
 
 # Calcular a matriz de distâncias
-distancia <- dist(dados_padronizados, method = "euclidean")
+distancia <- dist(dados_padronizados, method = "euclidian")
 
 # Aplicar o método de clusterização hierárquica (método de ligação completa)
 modelo_hclust <- hclust(distancia, method = "ward.D2")
@@ -96,13 +89,13 @@ dados[which(dados$grupo == 4), ]
 table(grupos)
 aggregate(dplyr::select(dados, -CITY, -grupo), list(dados$grupo), mean)
 
-library(cluster)
+#library(cluster)
 
 # Aplicar o método PAM com 3 clusters
-modelo_pam <- pam(dados_padronizados, k = 50)
+#modelo_pam <- pam(dados_padronizados, k = 50)
 
 # Visualizar clusters com um gráfico em silhueta
-plot(modelo_pam)
+#plot(modelo_pam)
 
 
 fviz_nbclust(dados_numericos, kmeans, method = "wss")
