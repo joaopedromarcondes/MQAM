@@ -103,3 +103,26 @@ modelo_pam <- pam(dados_padronizados, k = 50)
 
 # Visualizar clusters com um gráfico em silhueta
 plot(modelo_pam)
+
+
+fviz_nbclust(dados_numericos, kmeans, method = "wss")
+
+
+# Aplicando K-means com k clusters (por exemplo, k = 3)
+set.seed(123)  # Para resultados reprodutíveis
+kmeans_result <- kmeans(dados_padronizados, centers = 4, nstart = 10)
+
+# Adicionando os clusters aos dados originais
+dados$cluster <- as.factor(kmeans_result$cluster)
+
+
+pca_result <- prcomp(dados_padronizados)
+dados_pca <- as.data.frame(pca_result$x)
+dados_pca$cluster <- as.factor(kmeans_result$cluster)
+
+ggplot(dados_pca, aes(x = PC1, y = PC2, color = cluster)) +
+  geom_point(size = 2) +
+  labs(title = "Clusters com PCA") +
+  theme_minimal()
+
+dados
