@@ -2,6 +2,8 @@
 if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
+install.packages("ggplot2")
+install.packages("gridExtra")
 
 library(pacman)
 pacman::p_load(dplyr, ggplot2, readxl, readr, DT, factoextra)
@@ -99,7 +101,40 @@ plot(frequencias$IBGE_RES_POP)
 plot(frequencias$TAXES)
 plot(frequencias$IDHM)
 
+#estatisticas descritivas das variaveis quantitativas
 datatable(sapply(dados_numericos, descrever_coluna))
+
+library(ggplot2)
+library(gridExtra)
+
+# Função para converter a tabela de frequência em um gráfico de tabela
+salvar_tabela_como_imagem <- function(nome, tabela) {
+  tabela_df <- as.data.frame(tabela)
+  colnames(tabela_df) <- c("Intervalo", "Frequência")  # Nome das colunas
+
+  # Criar a tabela com ggplot2
+  p <- ggplot(tabela_df, aes(x = "", y = Intervalo, label = Frequência)) +
+    geom_tile(fill = "white", color = "black") +
+    geom_text(aes(label = Frequência), size = 5, color = "black") +
+    labs(title = nome) +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.text.y = element_text(size = 10),
+          axis.title = element_blank(),
+          panel.grid = element_blank())
+
+  return(p)
+}
+
+# Salvar as tabelas como imagens individuais ou combinadas
+tabelas <- lapply(names(frequencias), function(nome) salvar_tabela_como_imagem(nome, frequencias[[nome]]))
+
+# Combina as tabelas em uma imagem
+ggsave("tabelas_frequencia.png", grid.arrange(grobs = tabelas, ncol = 2), width = 10, height = 8)
+
+
+
 ### Tratamento dos dados ###
 dados_padronizados <- scale(dados_numericos)
 boxplot(dados_padronizados)
