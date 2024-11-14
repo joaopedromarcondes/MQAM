@@ -1,4 +1,4 @@
-####Instalacao das dependencias
+####ao das dependencias
 if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
@@ -24,8 +24,8 @@ descrever_coluna <- function(x) {
 
 #Preparando o Dataset
 tabela <- read_csv2("BRAZIL_CITIES.csv")
-dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "AREA")]
-dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "AREA")]
+dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM")]
+dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM")]
 
 # Tratar dados
 # Remover os valores 0 e os valores menores que 0
@@ -45,12 +45,13 @@ boxplot(dados$IBGE_PLANTED_AREA)
 boxplot(dados[["IBGE_CROP_PRODUCTION_$"]])
 boxplot(dados[["IBGE_RES_POP"]])
 boxplot(dados[["TAXES"]])
+boxplot(dados[["IDHM"]])
 
 #IMPOSTO PERCAPTA
-dados_numericos["TAXES"] <- dados_numericos["TAXES"] / dados_numericos["IBGE_RES_POP"]
+#dados_numericos["TAXES"] <- dados_numericos["TAXES"] / dados_numericos["IBGE_RES_POP"]
 
 #BOXPLOT IMPOSTO PER CAPTA
-boxplot(dados_numericos[, "TAXES"])
+#boxplot(dados_numericos[, "TAXES"])
 
 
 dados_numericos[, "IBGE_PLANTED_AREA"] <- log(dados_numericos[, "IBGE_PLANTED_AREA"])
@@ -64,6 +65,7 @@ boxplot(dados_numericos[, "IBGE_PLANTED_AREA"])
 boxplot(dados_numericos[, "IBGE_CROP_PRODUCTION_$"])
 boxplot(dados_numericos[, "IBGE_RES_POP"])
 boxplot(dados_numericos[, "TAXES"])
+
 
 
 ### Tratamento dos dados ###
@@ -103,7 +105,7 @@ fviz_nbclust(dados_numericos, kmeans, method = "wss")
 
 # Aplicando K-means com k clusters (por exemplo, k = 3)
 set.seed(123)  # Para resultados reprodutíveis
-kmeans_result <- kmeans(dados_padronizados, centers = 4, nstart = 10)
+kmeans_result <- kmeans(dados_padronizados, centers = 8, nstart = 10)
 
 # Adicionando os clusters aos dados originais
 dados$cluster <- as.factor(kmeans_result$cluster)
@@ -119,3 +121,7 @@ ggplot(dados_pca, aes(x = PC1, y = PC4, color = cluster)) +
   theme_minimal()
 
 dados
+
+table(dados$cluster)
+aggregate(dplyr::select(dados, -CITY, -grupo, -cluster), list(dados$cluster), mean)
+dados[which(dados$cluster == 1), ]
