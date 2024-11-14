@@ -99,7 +99,7 @@ frequencias
 datatable(sapply(dados_numericos, descrever_coluna))
 ### Tratamento dos dados ###
 dados_padronizados <- scale(dados_numericos)
-class(dados_padronizados)
+boxplot(dados_padronizados)
 
 # Calcular a matriz de distâncias
 distancia <- dist(dados_padronizados, method = "euclidian")
