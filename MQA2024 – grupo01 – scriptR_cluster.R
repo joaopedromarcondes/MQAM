@@ -58,8 +58,7 @@ boxplot(dados_numericos[, "TAXES"])
 dados_numericos["IBGE_RES_POP"] <- dados_numericos["IBGE_RES_POP"] / dados_numericos["AREA"]
 
 #BOXPLOT IMPOSTO PER CAPTA
-boxplot(dados_numericos[, "TAXES"])
-
+boxplot(dados_numericos[, "IBGE_RES_POP"])
 
 dados_numericos[, "IBGE_PLANTED_AREA"] <- log(dados_numericos[, "IBGE_PLANTED_AREA"])
 dados_numericos[, "IBGE_CROP_PRODUCTION_$"] <- log(dados_numericos[, "IBGE_CROP_PRODUCTION_$"])
@@ -82,7 +81,7 @@ class(dados_padronizados)
 distancia <- dist(dados_padronizados, method = "euclidean")
 
 # Aplicar o método de clusterização hierárquica (método de ligação completa)
-modelo_hclust <- hclust(distancia, method = "complete")
+modelo_hclust <- hclust(distancia, method = "single")
 
 # Plotar o dendrograma
 plot(modelo_hclust, labels = rownames(dados),
@@ -90,12 +89,13 @@ plot(modelo_hclust, labels = rownames(dados),
 
 
 # Cortar em 3 clusters
-grupos <- cutree(modelo_hclust, k = 3)
+grupos <- cutree(modelo_hclust, k = 5)
 #print(grupos)
 dados$grupo <- grupos
 dados[which(dados$grupo == 4), ]
 table(grupos)
 
+aggregate(dplyr::select(dados, -CITY, -grupo), list(dados$grupo), mean)
 
 library(cluster)
 
@@ -104,4 +104,3 @@ modelo_pam <- pam(dados_padronizados, k = 50)
 
 # Visualizar clusters com um gráfico em silhueta
 plot(modelo_pam)
-
