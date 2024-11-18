@@ -27,6 +27,12 @@ tabela <- read_csv2("BRAZIL_CITIES.csv")
 dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM", "RURAL_URBAN")]
 dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM")]
 
+# Contar quantas linhas estão sendo consideradas 
+tamanho_dataset <- nrow(dados_numericos)
+
+# Exibir o número de linhas restantes
+cat("Número de linhas:", tamanho_dataset, "\n")
+
 # Tratar dados
 # Remover os valores 0 e os valores menores que 0
 
@@ -119,8 +125,10 @@ grafico5 <- criar_grafico_frequencia(dados_numericos, "IDHM", 0.1, "Frequência 
 library(gridExtra)
 grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, ncol = 2)
 
-#tabela de distribuicao de frequencia com frequencia absoluta e relativa e com numero absoluto
-# Função para criar a tabela de distribuição de frequência com frequências absolutas e relativas
+
+library(DT)
+  
+# Função para criar a tabela de distribuição de frequência com frequências absolutas e relativas acumuladas
 criar_tabela_frequencia <- function(dados, variavel, intervalo) {
   # Criar os intervalos
   intervalos <- cut(dados[[variavel]], breaks = seq(min(dados[[variavel]], na.rm = TRUE), 
@@ -134,22 +142,34 @@ criar_tabela_frequencia <- function(dados, variavel, intervalo) {
   # Frequências relativas
   frequencias_relativas <- prop.table(frequencias_absolutas)
   
-  # Criar a tabela final combinando frequências absolutas e relativas
+  # Criar a tabela final combinando frequências absolutas e relativas com soma acumulada das frequências relativas
   tabela <- data.frame(
     Intervalo = names(frequencias_absolutas),
     Frequencia_Absoluta = as.vector(frequencias_absolutas),
     Frequencia_Relativa = round(as.vector(frequencias_relativas), 4),  # Frequência relativa com 4 casas decimais
-    Numero_Absoluto = sum(frequencias_absolutas)  # Número total de observações (soma das frequências absolutas)
+    Soma_Frequencia_Relativa = round(cumsum(as.vector(frequencias_relativas)), 4)  # Soma acumulada das frequências relativas
   )
   
   return(tabela)
 }
 
-# Criar tabela de frequência para a variável IBGE_PLANTED_AREA
-tabela_frequencia_ibge_planted_area <- criar_tabela_frequencia(dados_numericos, "IBGE_PLANTED_AREA", 2)
+# Definindo intervalos personalizados
+intervalos_personalizados <- list(
+  "IBGE_PLANTED_AREA" = 2,
+  "IBGE_CROP_PRODUCTION_$" = 2,
+  "IBGE_RES_POP" = 2,
+  "TAXES" = 2,
+  "IDHM" = 0.1
+)
 
-# Exibir a tabela
-datatable(tabela_frequencia_ibge_planted_area)
+# Exibindo cada tabela individualmente com datatable()
+# Para visualizar, execute cada linha separadamente
+
+datatable(criar_tabela_frequencia(dados_numericos, "IBGE_PLANTED_AREA", intervalos_personalizados[["IBGE_PLANTED_AREA"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "IBGE_CROP_PRODUCTION_$", intervalos_personalizados[["IBGE_CROP_PRODUCTION_$"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "IBGE_RES_POP", intervalos_personalizados[["IBGE_RES_POP"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "TAXES", intervalos_personalizados[["TAXES"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "IDHM", intervalos_personalizados[["IDHM"]]), options = list(pageLength = 5, autoWidth = TRUE))
 
 datatable(sapply(dados_numericos, descrever_coluna))
 
@@ -157,6 +177,8 @@ datatable(sapply(dados_numericos, descrever_coluna))
 ### Tratamento dos dados ###
 dados_padronizados <- scale(dados_numericos)
 boxplot(dados_padronizados)
+# Visualizando os dados padronizados
+datatable(dados_padronizados)
 
 # Calcular a matriz de distâncias
 distancia <- dist(dados_padronizados, method = "euclidian")
@@ -169,14 +191,14 @@ plot(modelo_hclust, labels = rownames(dados),
      main = "Dendrograma de Clusterização Hierárquica")
 
 
-# Cortar em 3 clusters
+# Cortar em 4 clusters
 grupos <- cutree(modelo_hclust, k = 4)
-#print(grupos)
 dados$grupo <- grupos
 dados[which(dados$grupo == 4), ]
 table(grupos)
-aggregate(dplyr::select(dados, -CITY, -grupo, -RURAL_URBAN), list(dados$grupo), mean)
-
+aggregate(dplyr::select(dados, -CITY, -grupo), list(dados$grupo), mean)
+datatable(aggregate(dplyr::select(dados, -CITY, -grupo), list(dados$grupo), mean)
+)
 #library(cluster)
 
 # Aplicar o método PAM com 3 clusters
@@ -189,7 +211,7 @@ aggregate(dplyr::select(dados, -CITY, -grupo, -RURAL_URBAN), list(dados$grupo), 
 fviz_nbclust(dados_numericos, kmeans, method = "wss")
 
 
-# Aplicando K-means com k clusters (por exemplo, k = 3)
+# Aplicando K-means com k clusters
 set.seed(123)  # Para resultados reprodutíveis
 kmeans_result <- kmeans(dados_padronizados, centers = 8, nstart = 10)
 
@@ -206,6 +228,27 @@ ggplot(dados_pca, aes(x = PC1, y = PC4, color = cluster)) +
   labs(title = "Clusters com PCA") +
   theme_minimal()
 
+observacoes_por_cluster <- kmeans_result$size
+
+# Exibindo o resultado
+print(observacoes_por_cluster)
+
+
+# Selecionar apenas as colunas numéricas
+dados_num <- dados[, sapply(dados, is.numeric)]
+
+# Aplicar o aggregate apenas nas colunas numéricas
+medias_por_cluster <- aggregate(. ~ cluster, data = cbind(dados_num, cluster = dados$cluster), FUN = mean)
+
+# Visualizando o resultado
+print(medias_por_cluster)
+
+datatable(medias_por_cluster)
+
+# Visualizar clusters em 2D
+fviz_cluster(kmeans_result, data = dados_padronizados, geom = "point", ellipse = TRUE) +
+  labs(title = "Clusters com K-Means")
+
 dados
 
 table(dados$cluster)
@@ -214,3 +257,34 @@ dados[which(dados$cluster == 1), ]
 
 table(dados[(dados$RURAL_URBAN == "Intermediário Remoto"), ]$grupo)
 table(dados$RURAL_URBAN)
+
+#kmeans outro codigo
+
+#determinar numero ótimo de clusters
+library(factoextra)
+
+# Calcular soma dos quadrados intra-cluster (total within-cluster sum of squares)
+fviz_nbclust(dados_padronizados, kmeans, method = "wss") +
+  labs(title = "Método do Cotovelo")
+
+#aplicar kmeans
+set.seed(123)  # Para resultados reprodutíveis
+
+# Escolha o número de clusters (substitua `k` pelo valor escolhido)
+k <-8  # Número de clusters
+kmeans_resultados <- kmeans(dados_padronizados, centers = k, nstart = 25)
+
+# Visualizar os resultados
+print(kmeans_resultados)
+
+#visualizar os clusters
+# Visualizar clusters em 2D
+fviz_cluster(kmeans_resultados, data = dados_padronizados, geom = "point", ellipse = TRUE) +
+  labs(title = "Clusters com K-Means")
+
+# Número de observações em cada cluster
+observacoes_por_cluster <- kmeans_resultados$size
+
+# Exibindo o resultado
+print(observacoes_por_cluster)
+
