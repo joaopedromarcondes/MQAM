@@ -29,6 +29,12 @@ tabela <- read_csv2("BRAZIL_CITIES.csv")
 dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM", "RURAL_URBAN")]
 dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM")]
 
+# Contar quantas linhas estão sendo consideradas 
+tamanho_dataset <- nrow(dados_numericos)
+
+# Exibir o número de linhas restantes
+cat("Número de linhas:", tamanho_dataset, "\n")
+
 # Tratar dados
 # Remover os valores 0 e os valores menores que 0
 
