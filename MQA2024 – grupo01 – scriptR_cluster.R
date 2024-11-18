@@ -2,11 +2,9 @@
 if (!requireNamespace("pacman", quietly = TRUE)) {
   install.packages("pacman")
 }
-install.packages("ggplot2")
-install.packages("gridExtra")
 
 library(pacman)
-pacman::p_load(dplyr, ggplot2, readxl, readr, DT, factoextra)
+pacman::p_load(dplyr, ggplot2, readxl, readr, DT, factoextra, gridExtra)
 
 # Definir funções importantes
 moda <- function(x) {
@@ -67,6 +65,7 @@ boxplot(dados_numericos[, "IBGE_PLANTED_AREA"])
 boxplot(dados_numericos[, "IBGE_CROP_PRODUCTION_$"])
 boxplot(dados_numericos[, "IBGE_RES_POP"])
 boxplot(dados_numericos[, "TAXES"])
+boxplot(dados_numericos[, "IDHM"])
 
 #TABELA DE DISTRIBUICAO DE FREQUENCIAS
 # Criação das tabelas de frequência com intervalos personalizados para cada variável
@@ -152,7 +151,7 @@ tabela_frequencia_ibge_planted_area <- criar_tabela_frequencia(dados_numericos, 
 # Exibir a tabela
 datatable(tabela_frequencia_ibge_planted_area)
 
-
+datatable(sapply(dados_numericos, descrever_coluna))
 
 
 ### Tratamento dos dados ###
@@ -176,7 +175,7 @@ grupos <- cutree(modelo_hclust, k = 4)
 dados$grupo <- grupos
 dados[which(dados$grupo == 4), ]
 table(grupos)
-aggregate(dplyr::select(dados, -CITY, -grupo), list(dados$grupo), mean)
+aggregate(dplyr::select(dados, -CITY, -grupo, -RURAL_URBAN), list(dados$grupo), mean)
 
 #library(cluster)
 
