@@ -37,7 +37,7 @@ cat("Número de linhas:", tamanho_dataset, "\n")
 # Remover os valores 0 e os valores menores que 0
 
 dados_negativos_ou_na <- (dados_numericos <= 0) | (is.na(dados_numericos))
-length(which(dados_negativos_ou_na))
+length(which(apply(dados_negativos_ou_na, 1, any)))
 dados <- dados[!apply(dados_negativos_ou_na, 1, any), ]
 dados_numericos <- dados_numericos[!apply(dados_negativos_ou_na, 1, any), ]
 
