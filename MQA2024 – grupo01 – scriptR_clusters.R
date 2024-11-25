@@ -55,7 +55,7 @@ criar_tabela_frequencia <- function(dados, variavel, intervalo) {
 }
 
 #Preparando o Dataset
-tabela <- read_csv2("MQA2024-grupo01-dataset_clusters.csv")
+tabela <- read_csv2("BRAZIL_CITIES.csv")
 dados <- tabela[, c("CITY", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM")]
 dados_numericos <- tabela[, c("IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IBGE_RES_POP", "TAXES", "IDHM")]
 
