@@ -7,7 +7,7 @@ if (!requireNamespace("pacman", quietly = TRUE)) {
 library(pacman)
 
 # Carrega os pacotes necessários, instalando-os se não estiverem presentes
-pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse, psych, GPArotation, corrplot)
+pacman::p_load(dplyr, ggplot2, readxl, readr, DT, fastDummies, lmtest, tidyverse, psych, GPArotation, corrplot, gridExtra)
 
 # Definir funções importantes
 moda <- function(x) {
