@@ -161,6 +161,11 @@ cor_matrix <- cor(dados_numericos)
 
 # Visualizar a matriz de correlação
 corrplot(cor_matrix, method = "circle", type = "upper", order = "hclust")
+# Calcular e imprimir a matriz de correlação
+cor_matrix <- cor(dados_numericos)
+# fazer com números também, não só cores
+datatable(round(cor_matrix, 2))
+
 
 # B: cálculo do método KMO das variáveis envolvidas
 # Calcular o índice KMO
