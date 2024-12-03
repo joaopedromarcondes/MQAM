@@ -176,6 +176,8 @@ print(bartlett)
 # Exibir MSA de cada variável
 print(kmo$MSAi)
 
+nfactors(dados_numericos, 8, rotate="none")
+
 #Método do cotovelo 
 # Calcular autovalores
 eigen_values <- eigen(cor(dados_numericos))$values
