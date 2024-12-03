@@ -118,9 +118,39 @@ grafico1 <- criar_grafico_frequencia(dados_numericos, "IBGE_RES_POP", 2, "Frequ�
 grafico2 <- criar_grafico_frequencia(dados_numericos, "IBGE_DU", 2, "Frequência de IBGE_DU")
 grafico3 <- criar_grafico_frequencia(dados_numericos, "IBGE_PLANTED_AREA", 2, "Frequência de IBGE_PLANTED_AREA")
 grafico4 <- criar_grafico_frequencia(dados_numericos, "IBGE_CROP_PRODUCTION_$", 2, "Frequência de IBGE_CROP_PRODUCTION_$")
-grafico5 <- criar_grafico_frequencia(dados_numericos, "AREA", 0.1, "Frequência de AREA")
-grafico6 <- criar_grafico_frequencia(dados_numericos, "TAXES", 2, "Frequência de TAXES")
-grafico7 <- criar_grafico_frequencia(dados_numericos, "Cars", 2, "Frequência de Cars")
-grafico8 <- criar_grafico_frequencia(dados_numericos, "Motorcycles", 0.1, "Frequência de Motorcycles")
+grafico5 <- criar_grafico_frequencia(dados_numericos, "IDHM", 2, "Frequência de IDHM")
+grafico6 <- criar_grafico_frequencia(dados_numericos, "AREA", 0.1, "Frequência de AREA")
+grafico7 <- criar_grafico_frequencia(dados_numericos, "TAXES", 2, "Frequência de TAXES")
+grafico8 <- criar_grafico_frequencia(dados_numericos, "Cars", 2, "Frequência de Cars")
+grafico9 <- criar_grafico_frequencia(dados_numericos, "Motorcycles", 2, "Frequência de Motorcycles")
 
-grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, ncol = 2)
+grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, ncol = 2)
+
+
+# Definindo intervalos personalizados
+intervalos_personalizados <- list(
+  "IBGE_RES_POP" = 2,
+  "IBGE_DU" = 2,
+  "IBGE_PLANTED_AREA" = 2,
+  "IBGE_CROP_PRODUCTION_$" = 2,
+  "IDHM" = 0.1,
+  "AREA" = 2,
+  "TAXES" = 2,
+  "Cars" = 2,
+  "Motorcycles" = 2
+)
+
+# Exibindo cada tabela individualmente com datatable()
+# Para visualizar, execute cada linha separadamente
+datatable(criar_tabela_frequencia(dados_numericos, "IBGE_RES_POP", intervalos_personalizados[["IBGE_RES_POP"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "IBGE_DU", intervalos_personalizados[["IBGE_DU"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "IBGE_PLANTED_AREA", intervalos_personalizados[["IBGE_PLANTED_AREA"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "IBGE_CROP_PRODUCTION_$", intervalos_personalizados[["IBGE_CROP_PRODUCTION_$"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "IDHM", intervalos_personalizados[["IDHM"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "AREA", intervalos_personalizados[["AREA"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "TAXES", intervalos_personalizados[["TAXES"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "Cars", intervalos_personalizados[["Cars"]]), options = list(pageLength = 5, autoWidth = TRUE))
+datatable(criar_tabela_frequencia(dados_numericos, "Motorcycles", intervalos_personalizados[["Motorcycles"]]), options = list(pageLength = 5, autoWidth = TRUE))
+
+
+datatable(sapply(dados_numericos, descrever_coluna))
