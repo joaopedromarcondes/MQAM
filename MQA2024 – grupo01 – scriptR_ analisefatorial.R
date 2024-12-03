@@ -154,3 +154,56 @@ datatable(criar_tabela_frequencia(dados_numericos, "Motorcycles", intervalos_per
 
 
 datatable(sapply(dados_numericos, descrever_coluna))
+
+# A: matriz de correlação entre as variáveis envolvidas
+# Calcular a matriz de correlação
+cor_matrix <- cor(dados_numericos)
+
+# Visualizar a matriz de correlação
+corrplot(cor_matrix, method = "circle", type = "upper", order = "hclust")
+
+# B: cálculo do método KMO das variáveis envolvidas
+# Calcular o índice KMO
+kmo <- KMO(dados_numericos)
+print(kmo)
+
+# C: teste de bartlett da matriz de correlação 
+# Teste de Bartlett
+bartlett <- cortest.bartlett(cor_matrix, n = nrow(dados_numericos))
+print(bartlett)
+
+# D: Cálculo do MSA (Measure of Sampling Adequacy) para cada variável
+# Exibir MSA de cada variável
+print(kmo$MSAi)
+
+#Método do cotovelo 
+# Calcular autovalores
+eigen_values <- eigen(cor(dados_numericos))$values
+print(eigen_values)
+
+# Gerar Scree Plot
+plot(eigen_values, type = "b", main = "Scree Plot (Método do Cotovelo)",
+     xlab = "Número de Fatores", ylab = "Autovalor", pch = 19, col = "blue")
+
+# Adicionar linha horizontal no autovalor 1 (Critério de Kaiser)
+abline(h = 1, col = "red", lty = 2)
+
+# F: rotação dos fatores
+# Extração de fatores (Ex.: 3 fatores)
+fa_unrotated <- fa(dados_numericos, nfactors = 3, rotate = "none")
+print(fa_unrotated$loadings)
+
+# Rotação Varimax (ortogonal)
+fa_rotated <- fa(dados_numericos, nfactors = 3, rotate = "varimax")
+print(fa_rotated$loadings)
+
+#G: interpretação dos fatores obtidos
+# Exibir apenas os loadings significativos
+print(fa_rotated$loadings, cutoff = 0.4)
+
+# Gerar escores fatoriais
+factor_scores <- fa_rotated$scores
+
+# Adicionar ao dataset
+dados_numericos$fator1 <- factor_scores[, 1]
+dados_numericos$fator2 <- factor_scores[, 2]
