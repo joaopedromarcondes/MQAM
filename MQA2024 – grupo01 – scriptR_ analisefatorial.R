@@ -159,19 +159,6 @@ grafico9 <- criar_grafico_frequencia(dados_numericos, "IDHM_Educacao", 0.1, "Fre
 
 grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, ncol = 3)
 
-# Definindo intervalos personalizados
-intervalos_personalizados <- list(
-  "IBGE_RES_POP" = 2,
-  "IBGE_DU" = 2,
-  "IBGE_PLANTED_AREA" = 2,
-  "IBGE_CROP_PRODUCTION_$" = 2,
-  "IDHM" = 0.1,
-  "AREA" = 2,
-  "TAXES" = 2,
-  "Cars" = 2,
-  "Motorcycles" = 2
-)
-
 datatable(sapply(dados_numericos, descrever_coluna))
 
 # A: matriz de correlação entre as variáveis envolvidas
