@@ -206,24 +206,9 @@ print(bartlett)
 # Exibir MSA de cada variável
 print(kmo$MSAi)
 
-# nfactors(dados_numericos, 8, rotate="none")
-nfactors(dados_numericos, n = 10, criteria = "eigen")
-# Scree plot dos autovalores
-fa.parallel(cor_matrix, fa = "fa", n.obs = nrow(dados))
-
-#Método do cotovelo 
 # Calcular autovalores
 eigen_values <- eigen(cor(dados_numericos))$values
 print(eigen_values)
-
-screeplot <- data.frame(Fator = 1:length(eigen_values), Autovalor = eigen_values)
-library(ggplot2)
-ggplot(screeplot, aes(x = Fator, y = Autovalor)) +
-  geom_point() +
-  geom_line() +
-  ggtitle("Scree Plot") +
-  xlab("Fatores") +
-  ylab("Autovalores")
 
 
 variancia_explicada <- eigen_values / sum(eigen_values) * 100
@@ -239,7 +224,7 @@ abline(h = 1, col = "red", lty = 2)
 
 # F: rotação dos fatores
 # Extração de fatores (Ex.: 3 fatores)
-fa_unrotated <- fa(dados_numericos, nfactors =3, rotate = "none")
+fa_unrotated <- fa(dados_numericos, nfactors = 3, rotate = "none", scores = "Thurstone")
 print(fa_unrotated$loadings)
 
 # Rotação Varimax (ortogonal)
