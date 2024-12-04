@@ -184,6 +184,7 @@ print(bartlett)
 # Exibir MSA de cada variável
 print(kmo$MSAi)
 
+#E: Determinação do número de fatores (
 # Calcular autovalores
 eigen_values <- eigen(cor(dados_numericos))$values
 print(eigen_values)
