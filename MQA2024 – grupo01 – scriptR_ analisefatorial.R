@@ -180,8 +180,7 @@ cor_matrix <- cor(dados_numericos)
 
 # Visualizar a matriz de correlação
 corrplot(cor_matrix, method = "circle", type = "upper", order = "hclust")
-# Calcular e imprimir a matriz de correlação
-cor_matrix <- cor(dados_numericos)
+
 # fazer com números também, não só cores
 datatable(round(cor_matrix, 2))
 
@@ -191,7 +190,7 @@ datatable(round(cor_matrix, 2))
 kmo <- KMO(dados_numericos)
 print(kmo)
 
-# C: teste de bartlett da matriz de correlação 
+# C: teste de bartlett da matriz de correlação
 # Teste de Bartlett
 bartlett <- cortest.bartlett(cor_matrix, n = nrow(dados_numericos))
 print(bartlett)
