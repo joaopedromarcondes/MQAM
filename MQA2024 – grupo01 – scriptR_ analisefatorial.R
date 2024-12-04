@@ -59,8 +59,8 @@ criar_tabela_frequencia <- function(dados, variavel, intervalo) {
 
 #Preparando o Dataset
 tabela <- read_csv2("MQA2024–grupo01–dataset_ analisefatorial.csv")
-dados <- tabela[, c("CITY", "IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "RURAL_URBAN", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao")]
-dados_numericos <- tabela[, c("IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao")]
+dados <- tabela[, c("CITY", "IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "RURAL_URBAN", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Educacao")]
+dados_numericos <- tabela[, c("IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Educacao")]
 
 
 # Contar quantas linhas estão sendo consideradas 
@@ -99,7 +99,6 @@ boxplot(dados[["IBGE_15-59"]])
 boxplot(dados[["IBGE_1"]])
 boxplot(dados[["IBGE_60+"]])
 boxplot(dados[["IDHM_Renda"]])
-boxplot(dados[["IDHM_Longevidade"]])
 boxplot(dados[["IDHM_Educacao"]])
 
 # Transformação Logarítmica
@@ -154,10 +153,9 @@ grafico4 <- criar_grafico_frequencia(dados_numericos, "IBGE_15-59", 2, "Frequên
 grafico5 <- criar_grafico_frequencia(dados_numericos, "IBGE_1", 2, "Frequência de IBGE_1")
 grafico6 <- criar_grafico_frequencia(dados_numericos, "IBGE_60+", 2, "Frequência de IBGE_60+")
 grafico7 <- criar_grafico_frequencia(dados_numericos, "IDHM_Renda", 0.1, "Frequência de IDHM_Renda")
-grafico8 <- criar_grafico_frequencia(dados_numericos, "IDHM_Longevidade", 0.1, "Frequência de IDHM_Longevidade")
-grafico9 <- criar_grafico_frequencia(dados_numericos, "IDHM_Educacao", 0.1, "Frequência de IDHM_Educacao")
+grafico8 <- criar_grafico_frequencia(dados_numericos, "IDHM_Educacao", 0.1, "Frequência de IDHM_Educacao")
 
-grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, ncol = 3)
+grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, ncol = 3)
 
 datatable(sapply(dados_numericos, descrever_coluna))
 
