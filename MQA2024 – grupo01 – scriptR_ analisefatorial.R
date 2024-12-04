@@ -124,7 +124,7 @@ grafico7 <- criar_grafico_frequencia(dados_numericos, "TAXES", 2, "Frequência d
 grafico8 <- criar_grafico_frequencia(dados_numericos, "Cars", 2, "Frequência de Cars")
 grafico9 <- criar_grafico_frequencia(dados_numericos, "Motorcycles", 2, "Frequência de Motorcycles")
 
-grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, ncol = 2)
+grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, ncol = 3)
 
 
 # Definindo intervalos personalizados
