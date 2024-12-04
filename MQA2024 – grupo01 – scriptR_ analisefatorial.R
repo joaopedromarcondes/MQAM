@@ -59,8 +59,8 @@ criar_tabela_frequencia <- function(dados, variavel, intervalo) {
 
 #Preparando o Dataset
 tabela <- read_csv2("MQA2024–grupo01–dataset_ analisefatorial.csv")
-dados <- tabela[, c("CITY", "IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "RURAL_URBAN", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao", "IBGE_RES_POP_BRAS")]
-dados_numericos <- tabela[, c("IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao", "IBGE_RES_POP_BRAS")]
+dados <- tabela[, c("CITY", "IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "RURAL_URBAN", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao")]
+dados_numericos <- tabela[, c("IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao")]
 
 
 # Contar quantas linhas estão sendo consideradas 
@@ -101,8 +101,6 @@ boxplot(dados[["IBGE_60+"]])
 boxplot(dados[["IDHM_Renda"]])
 boxplot(dados[["IDHM_Longevidade"]])
 boxplot(dados[["IDHM_Educacao"]])
-boxplot(dados[["IBGE_RES_POP_BRAS"]])
-
 
 # Transformação Logarítmica
 dados_numericos[, "IBGE_RES_POP"] <- log(dados_numericos[, "IBGE_RES_POP"])
@@ -119,8 +117,6 @@ dados_numericos[, "IBGE_10-14"] <- log(dados_numericos[, "IBGE_10-14"])
 dados_numericos[, "IBGE_15-59"] <- log(dados_numericos[, "IBGE_15-59"])
 dados_numericos[, "IBGE_1"] <- log(dados_numericos[, "IBGE_1"])
 dados_numericos[, "IBGE_60+"] <- log(dados_numericos[, "IBGE_60+"])
-dados_numericos[, "IBGE_RES_POP_BRAS"] <- log(dados_numericos[, "IBGE_RES_POP_BRAS"])
-
 
 ### BOXPLOTS DOS DADOS APÓS TRANSFORMACAO LOGARITMICA
 boxplot(dados_numericos[["IBGE_RES_POP"]])
@@ -137,7 +133,6 @@ boxplot(dados_numericos[["IBGE_10-14"]])
 boxplot(dados_numericos[["IBGE_15-59"]])
 boxplot(dados_numericos[["IBGE_1"]])
 boxplot(dados_numericos[["IBGE_60+"]])
-boxplot(dados_numericos[["IBGE_RES_POP_BRAS"]])
 
 # Criar gráficos para cada variável
 grafico1 <- criar_grafico_frequencia(dados_numericos, "IBGE_RES_POP", 2, "Frequência de IBGE_RES_POP")
@@ -161,9 +156,8 @@ grafico6 <- criar_grafico_frequencia(dados_numericos, "IBGE_60+", 2, "Frequênci
 grafico7 <- criar_grafico_frequencia(dados_numericos, "IDHM_Renda", 0.1, "Frequência de IDHM_Renda")
 grafico8 <- criar_grafico_frequencia(dados_numericos, "IDHM_Longevidade", 0.1, "Frequência de IDHM_Longevidade")
 grafico9 <- criar_grafico_frequencia(dados_numericos, "IDHM_Educacao", 0.1, "Frequência de IDHM_Educacao")
-grafico10 <- criar_grafico_frequencia(dados_numericos, "IBGE_RES_POP_BRAS", 2, "Frequência de IBGE_RES_POP_BRAS")
 
-grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, grafico10, ncol = 4)
+grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, ncol = 3)
 
 # Definindo intervalos personalizados
 intervalos_personalizados <- list(
