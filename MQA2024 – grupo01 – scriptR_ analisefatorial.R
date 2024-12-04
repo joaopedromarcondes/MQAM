@@ -59,8 +59,8 @@ criar_tabela_frequencia <- function(dados, variavel, intervalo) {
 
 #Preparando o Dataset
 tabela <- read_csv2("MQA2024–grupo01–dataset_ analisefatorial.csv")
-dados <- tabela[, c("CITY", "IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "RURAL_URBAN", "TAXES", "Cars", "Motorcycles")]
-dados_numericos <- tabela[, c("IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "TAXES", "Cars", "Motorcycles")]
+dados <- tabela[, c("CITY", "IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "RURAL_URBAN", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao", "IBGE_RES_POP_BRAS", "IBGE_RES_POP_ESTR")]
+dados_numericos <- tabela[, c("IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao", "IBGE_RES_POP_BRAS", "IBGE_RES_POP_ESTR")]
 
 
 # Contar quantas linhas estão sendo consideradas 
@@ -92,6 +92,7 @@ boxplot(dados[["AREA"]])
 boxplot(dados[["TAXES"]])
 boxplot(dados[["Cars"]])
 boxplot(dados[["Motorcycles"]])
+boxplot()
 
 # Transformação Logarítmica
 dados_numericos[, "IBGE_RES_POP"] <- log(dados_numericos[, "IBGE_RES_POP"])
@@ -181,7 +182,10 @@ print(bartlett)
 # Exibir MSA de cada variável
 print(kmo$MSAi)
 
-nfactors(dados_numericos, 8, rotate="none")
+# nfactors(dados_numericos, 8, rotate="none")
+nfactors(dados_numericos, n = 10, criteria = "eigen")
+# Scree plot dos autovalores
+fa.parallel(cor_matrix, fa = "fa", n.obs = nrow(dados))
 
 #Método do cotovelo 
 # Calcular autovalores
@@ -197,11 +201,11 @@ abline(h = 1, col = "red", lty = 2)
 
 # F: rotação dos fatores
 # Extração de fatores (Ex.: 3 fatores)
-fa_unrotated <- fa(dados_numericos, nfactors = 3, rotate = "none")
+fa_unrotated <- fa(dados_numericos, nfactors = 4, rotate = "none")
 print(fa_unrotated$loadings)
 
 # Rotação Varimax (ortogonal)
-fa_rotated <- fa(dados_numericos, nfactors = 3, rotate = "varimax")
+fa_rotated <- fa(dados_numericos, nfactors = 4, rotate = "varimax")
 print(fa_rotated$loadings)
 
 #G: interpretação dos fatores obtidos
