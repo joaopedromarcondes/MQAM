@@ -59,8 +59,8 @@ criar_tabela_frequencia <- function(dados, variavel, intervalo) {
 
 #Preparando o Dataset
 tabela <- read_csv2("MQA2024–grupo01–dataset_ analisefatorial.csv")
-dados <- tabela[, c("CITY", "IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "RURAL_URBAN", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao", "IBGE_RES_POP_BRAS", "IBGE_RES_POP_ESTR")]
-dados_numericos <- tabela[, c("IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao", "IBGE_RES_POP_BRAS", "IBGE_RES_POP_ESTR")]
+dados <- tabela[, c("CITY", "IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "RURAL_URBAN", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao", "IBGE_RES_POP_BRAS")]
+dados_numericos <- tabela[, c("IBGE_RES_POP", "IBGE_DU", "IBGE_PLANTED_AREA", "IBGE_CROP_PRODUCTION_$", "IDHM", "AREA", "TAXES", "Cars", "Motorcycles", "IBGE_1-4", "IBGE_5-9", "IBGE_10-14", "IBGE_15-59", "IBGE_1", "IBGE_60+", "IDHM_Renda", "IDHM_Longevidade", "IDHM_Educacao", "IBGE_RES_POP_BRAS")]
 
 
 # Contar quantas linhas estão sendo consideradas 
@@ -92,7 +92,17 @@ boxplot(dados[["AREA"]])
 boxplot(dados[["TAXES"]])
 boxplot(dados[["Cars"]])
 boxplot(dados[["Motorcycles"]])
-boxplot()
+boxplot(dados[["IBGE_1-4"]])
+boxplot(dados[["IBGE_5-9"]])
+boxplot(dados[["IBGE_10-14"]])
+boxplot(dados[["IBGE_15-59"]])
+boxplot(dados[["IBGE_1"]])
+boxplot(dados[["IBGE_60+"]])
+boxplot(dados[["IDHM_Renda"]])
+boxplot(dados[["IDHM_Longevidade"]])
+boxplot(dados[["IDHM_Educacao"]])
+boxplot(dados[["IBGE_RES_POP_BRAS"]])
+
 
 # Transformação Logarítmica
 dados_numericos[, "IBGE_RES_POP"] <- log(dados_numericos[, "IBGE_RES_POP"])
@@ -103,6 +113,14 @@ dados_numericos[, "AREA"] <- log(dados_numericos[, "AREA"])
 dados_numericos[, "TAXES"] <- log(dados_numericos[, "TAXES"])
 dados_numericos[, "Cars"] <- log(dados_numericos[, "Cars"])
 dados_numericos[, "Motorcycles"] <- log(dados_numericos[, "Motorcycles"])
+dados_numericos[, "IBGE_1-4"] <- log(dados_numericos[, "IBGE_1-4"])
+dados_numericos[, "IBGE_5-9"] <- log(dados_numericos[, "IBGE_5-9"])
+dados_numericos[, "IBGE_10-14"] <- log(dados_numericos[, "IBGE_10-14"])
+dados_numericos[, "IBGE_15-59"] <- log(dados_numericos[, "IBGE_15-59"])
+dados_numericos[, "IBGE_1"] <- log(dados_numericos[, "IBGE_1"])
+dados_numericos[, "IBGE_60+"] <- log(dados_numericos[, "IBGE_60+"])
+dados_numericos[, "IBGE_RES_POP_BRAS"] <- log(dados_numericos[, "IBGE_RES_POP_BRAS"])
+
 
 ### BOXPLOTS DOS DADOS APÓS TRANSFORMACAO LOGARITMICA
 boxplot(dados_numericos[["IBGE_RES_POP"]])
@@ -113,6 +131,13 @@ boxplot(dados_numericos[["AREA"]])
 boxplot(dados_numericos[["TAXES"]])
 boxplot(dados_numericos[["Cars"]])
 boxplot(dados_numericos[["Motorcycles"]])
+boxplot(dados_numericos[["IBGE_1-4"]])
+boxplot(dados_numericos[["IBGE_5-9"]])
+boxplot(dados_numericos[["IBGE_10-14"]])
+boxplot(dados_numericos[["IBGE_15-59"]])
+boxplot(dados_numericos[["IBGE_1"]])
+boxplot(dados_numericos[["IBGE_60+"]])
+boxplot(dados_numericos[["IBGE_RES_POP_BRAS"]])
 
 # Criar gráficos para cada variável
 grafico1 <- criar_grafico_frequencia(dados_numericos, "IBGE_RES_POP", 2, "Frequência de IBGE_RES_POP")
@@ -127,6 +152,18 @@ grafico9 <- criar_grafico_frequencia(dados_numericos, "Motorcycles", 2, "Frequê
 
 grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, ncol = 3)
 
+grafico1 <- criar_grafico_frequencia(dados_numericos, "IBGE_1-4", 2, "Frequência de IBGE_1-4")
+grafico2 <- criar_grafico_frequencia(dados_numericos, "IBGE_5-9", 2, "Frequência de IBGE_5-9")
+grafico3 <- criar_grafico_frequencia(dados_numericos, "IBGE_10-14", 2, "Frequência de IBGE_10-14")
+grafico4 <- criar_grafico_frequencia(dados_numericos, "IBGE_15-59", 2, "Frequência de IBGE_15-59")
+grafico5 <- criar_grafico_frequencia(dados_numericos, "IBGE_1", 2, "Frequência de IBGE_1")
+grafico6 <- criar_grafico_frequencia(dados_numericos, "IBGE_60+", 2, "Frequência de IBGE_60+")
+grafico7 <- criar_grafico_frequencia(dados_numericos, "IDHM_Renda", 0.1, "Frequência de IDHM_Renda")
+grafico8 <- criar_grafico_frequencia(dados_numericos, "IDHM_Longevidade", 0.1, "Frequência de IDHM_Longevidade")
+grafico9 <- criar_grafico_frequencia(dados_numericos, "IDHM_Educacao", 0.1, "Frequência de IDHM_Educacao")
+grafico10 <- criar_grafico_frequencia(dados_numericos, "IBGE_RES_POP_BRAS", 2, "Frequência de IBGE_RES_POP_BRAS")
+
+grid.arrange(grafico1, grafico2, grafico3, grafico4, grafico5, grafico6, grafico7, grafico8, grafico9, grafico10, ncol = 4)
 
 # Definindo intervalos personalizados
 intervalos_personalizados <- list(
@@ -140,19 +177,6 @@ intervalos_personalizados <- list(
   "Cars" = 2,
   "Motorcycles" = 2
 )
-
-# Exibindo cada tabela individualmente com datatable()
-# Para visualizar, execute cada linha separadamente
-datatable(criar_tabela_frequencia(dados_numericos, "IBGE_RES_POP", intervalos_personalizados[["IBGE_RES_POP"]]), options = list(pageLength = 5, autoWidth = TRUE))
-datatable(criar_tabela_frequencia(dados_numericos, "IBGE_DU", intervalos_personalizados[["IBGE_DU"]]), options = list(pageLength = 5, autoWidth = TRUE))
-datatable(criar_tabela_frequencia(dados_numericos, "IBGE_PLANTED_AREA", intervalos_personalizados[["IBGE_PLANTED_AREA"]]), options = list(pageLength = 5, autoWidth = TRUE))
-datatable(criar_tabela_frequencia(dados_numericos, "IBGE_CROP_PRODUCTION_$", intervalos_personalizados[["IBGE_CROP_PRODUCTION_$"]]), options = list(pageLength = 5, autoWidth = TRUE))
-datatable(criar_tabela_frequencia(dados_numericos, "IDHM", intervalos_personalizados[["IDHM"]]), options = list(pageLength = 5, autoWidth = TRUE))
-datatable(criar_tabela_frequencia(dados_numericos, "AREA", intervalos_personalizados[["AREA"]]), options = list(pageLength = 5, autoWidth = TRUE))
-datatable(criar_tabela_frequencia(dados_numericos, "TAXES", intervalos_personalizados[["TAXES"]]), options = list(pageLength = 5, autoWidth = TRUE))
-datatable(criar_tabela_frequencia(dados_numericos, "Cars", intervalos_personalizados[["Cars"]]), options = list(pageLength = 5, autoWidth = TRUE))
-datatable(criar_tabela_frequencia(dados_numericos, "Motorcycles", intervalos_personalizados[["Motorcycles"]]), options = list(pageLength = 5, autoWidth = TRUE))
-
 
 datatable(sapply(dados_numericos, descrever_coluna))
 
@@ -192,6 +216,20 @@ fa.parallel(cor_matrix, fa = "fa", n.obs = nrow(dados))
 eigen_values <- eigen(cor(dados_numericos))$values
 print(eigen_values)
 
+screeplot <- data.frame(Fator = 1:length(eigen_values), Autovalor = eigen_values)
+library(ggplot2)
+ggplot(screeplot, aes(x = Fator, y = Autovalor)) +
+  geom_point() +
+  geom_line() +
+  ggtitle("Scree Plot") +
+  xlab("Fatores") +
+  ylab("Autovalores")
+
+
+variancia_explicada <- eigen_values / sum(eigen_values) * 100
+print(variancia_explicada)
+
+
 # Gerar Scree Plot
 plot(eigen_values, type = "b", main = "Scree Plot (Método do Cotovelo)",
      xlab = "Número de Fatores", ylab = "Autovalor", pch = 19, col = "blue")
@@ -201,16 +239,16 @@ abline(h = 1, col = "red", lty = 2)
 
 # F: rotação dos fatores
 # Extração de fatores (Ex.: 3 fatores)
-fa_unrotated <- fa(dados_numericos, nfactors = 4, rotate = "none")
+fa_unrotated <- fa(dados_numericos, nfactors =3, rotate = "none")
 print(fa_unrotated$loadings)
 
 # Rotação Varimax (ortogonal)
-fa_rotated <- fa(dados_numericos, nfactors = 4, rotate = "varimax")
+fa_rotated <- fa(dados_numericos, nfactors = 3, rotate = "varimax")
 print(fa_rotated$loadings)
 
 #G: interpretação dos fatores obtidos
 # Exibir apenas os loadings significativos
-print(fa_rotated$loadings, cutoff = 0.4)
+print(fa_rotated$loadings, cutoff = 0.3)
 
 # Gerar escores fatoriais
 factor_scores <- fa_rotated$scores
