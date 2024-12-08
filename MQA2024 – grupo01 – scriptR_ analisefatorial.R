@@ -166,8 +166,14 @@ cor_matrix <- cor(dados_numericos)
 # Visualizar a matriz de correlação
 corrplot(cor_matrix, method = "circle", type = "upper", order = "hclust")
 
-# fazer com números também, não só cores
-datatable(round(cor_matrix, 2))
+# Criando uma matriz de correlação numérica
+cor_matrix <- cor(dados_numericos)
+cor_matrix_rounded <- round(cor_matrix, 2)
+
+# Criando um grid com a matriz de correlação como uma tabela numérica
+png("matriz_correlacao_numerica.png", width = 3000, height = 3000, res = 150)
+grid.table(cor_matrix_rounded)
+dev.off()
 
 
 # B: cálculo do método KMO das variáveis envolvidas
@@ -203,8 +209,10 @@ abline(h = 1, col = "red", lty = 2)
 
 # F: rotação dos fatores
 # Extração de fatores (Ex.: 3 fatores)
-fa_unrotated <- fa(dados_numericos, nfactors = 3, rotate = "none", scores = "Thurstone")
+fa_unrotated <- fa(dados_numericos, nfactors = 3, rotate = "none")
 print(fa_unrotated$loadings)
+
+print(fa_unrotated$loadings, cutoff = 0.5)
 
 # Rotação Varimax (ortogonal)
 fa_rotated <- fa(dados_numericos, nfactors = 3, rotate = "varimax")
@@ -212,8 +220,8 @@ print(fa_rotated$loadings)
 
 #G: interpretação dos fatores obtidos
 # Exibir apenas os loadings significativos
-print(fa_rotated$loadings, cutoff = 0.3)
-
+print(fa_rotated$loadings, cutoff = 0.5)
+x
 # Gerar escores fatoriais
 factor_scores <- fa_rotated$scores
 
